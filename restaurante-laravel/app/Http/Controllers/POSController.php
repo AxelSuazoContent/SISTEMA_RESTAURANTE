@@ -67,88 +67,76 @@ return view('pos.index', compact(
      * Crear nuevo pedido
      */
     public function crearPedido(Request $request)
-    {
-        $request->validate([
-            'tipo' => 'required|in:mesa,llevar,domicilio',
-            'mesa_id' => 'required_if:tipo,mesa|nullable|exists:mesas,id',
-            'cliente_nombre' => 'nullable|string|max:255',
-            'cliente_telefono' => 'nullable|string|max:20',
-            'productos' => 'required|array|min:1',
-            'productos.*.id' => 'required|exists:productos,id',
-            'productos.*.cantidad' => 'required|integer|min:1',
-            'productos.*.notas' => 'nullable|string',
-            'notas' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'tipo'                  => 'required|in:mesa,llevar,domicilio',
+        'mesa_id'              => 'required_if:tipo,mesa|nullable|exists:mesas,id',
+        'cliente_nombre'       => 'nullable|string|max:255',
+        'cliente_telefono'     => 'nullable|string|max:20',
+        'productos'            => 'required|array|min:1',
+        'productos.*.id'       => 'required|exists:productos,id',
+        'productos.*.cantidad' => 'required|integer|min:1',
+        'productos.*.notas'    => 'nullable|string',
+        'notas'                => 'nullable|string',
+    ]);
 
-        DB::beginTransaction();
-
-        try {
-            // Crear el pedido
-            $pedido = Pedido::create([
-                'mesa_id' => $request->mesa_id,
-                'usuario_id' => Auth::id(),
-                'cliente_nombre' => $request->cliente_nombre,
-                'cliente_telefono' => $request->cliente_telefono,
-                'estado' => 'pendiente',
-                'tipo' => $request->tipo,
-                'notas' => $request->notas,
-            ]);
-
-            // Agregar detalles
-            foreach ($request->productos as $item) {
-                $producto = Producto::find($item['id']);
-                
-                $pedido->detalles()->create([
-                    'producto_id' => $item['id'],
-                    'cantidad' => $item['cantidad'],
-                    'precio_unitario' => $producto->precio,
-                    'notas' => $item['notas'] ?? null,
-                    'estado' => 'pendiente',
-                ]);
-
-                // Descontar stock
-                $producto->stock -= $item['cantidad'];
-                $producto->save();
-            }
-
-            // Calcular total
-            // Calcular total
-$pedido->actualizarTotal();
-            // Verificar que la caja esté abierta
-// Verificar que la caja esté abierta
-if (!\App\Models\AperturaCaja::cajaAbiertaHoy()) {
-    return response()->json([
-        'success' => false,
-        'message' => 'No se pueden crear pedidos. La caja no ha sido abierta hoy.',
-    ], 422);
-}
-
-DB::beginTransaction();
-            // Actualizar estado de la mesa si es pedido en mesa
-            if ($request->mesa_id) {
-                $mesa = Mesa::find($request->mesa_id);
-                $mesa->estado = 'ocupada';
-                $mesa->save();
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'pedido' => $pedido->load(['detalles.producto', 'mesa']),
-                'message' => 'Pedido creado correctamente.',
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el pedido: ' . $e->getMessage(),
-            ], 500);
-        }
+    if (!\App\Models\AperturaCaja::cajaAbiertaHoy()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pueden crear pedidos. La caja no ha sido abierta hoy.',
+        ], 422);
     }
 
+    DB::beginTransaction();
+
+    try {
+        $pedido = Pedido::create([
+            'mesa_id'          => $request->mesa_id,
+            'usuario_id'       => Auth::id(),
+            'cliente_nombre'   => $request->cliente_nombre,
+            'cliente_telefono' => $request->cliente_telefono,
+            'estado'           => 'pendiente',
+            'tipo'             => $request->tipo,
+            'notas'            => $request->notas,
+        ]);
+
+        foreach ($request->productos as $item) {
+            $producto = Producto::find($item['id']);
+            $pedido->detalles()->create([
+                'producto_id'     => $item['id'],
+                'cantidad'        => $item['cantidad'],
+                'precio_unitario' => $producto->precio,
+                'notas'           => $item['notas'] ?? null,
+                'estado'          => 'pendiente',
+            ]);
+            $producto->stock -= $item['cantidad'];
+            $producto->save();
+        }
+
+        $pedido->actualizarTotal();
+
+        if ($request->mesa_id) {
+            $mesa = Mesa::find($request->mesa_id);
+            $mesa->estado = 'ocupada';
+            $mesa->save();
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'pedido'  => $pedido->load(['detalles.producto', 'mesa']),
+            'message' => 'Pedido creado correctamente.',
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear el pedido: ' . $e->getMessage(),
+        ], 500);
+    }
+}
     /**
      * Agregar productos a un pedido existente
      */

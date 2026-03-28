@@ -122,11 +122,10 @@
             </div>
             <div class="card-body">
                 {{-- Pasar reservaciones a JS --}}
-<script>
-    const RESERVACIONES = @json($reservaciones);
-</script>
+
                 <div class="mesa-grid">
-                    @foreach($mesas as $mesa)
+                    
+@foreach($mesas as $mesa)
 @php
     $reservasMesa   = $reservaciones->get($mesa->id, collect());
     $proximaReserva = $reservasMesa->first();
@@ -136,8 +135,7 @@
          id="mesa-{{ $mesa->id }}"
          data-mesa-id="{{ $mesa->id }}"
          data-mesa-numero="{{ $mesa->numero }}"
-         data-mesa-estado="{{ $mesa->estado }}"
-         onclick="seleccionarMesa({{ $mesa->id }}, {{ $mesa->numero }}, '{{ $mesa->estado }}')">
+         data-mesa-estado="{{ $mesa->estado }}">
         <i class="bi bi-{{ $mesa->capacidad > 4 ? 'people' : 'person' }}" style="font-size:1.4rem"></i>
         <span>{{ $mesa->numero }}</span>
         <small>{{ $mesa->capacidad }}p</small>
@@ -507,41 +505,16 @@ document.getElementById('btnVerPedidoMesa').addEventListener('click', function (
     verDetallePedidoPorMesa(mesaModal.id);
 });
 
-document.getElementById('btnLiberarMesa').addEventListener('click', function () {
-    bootstrap.Modal.getInstance(document.getElementById('modalLiberarMesa')).hide();
-    liberarMesa(mesaModal.id, mesaModal.numero);
+// Registrar clicks de mesas via addEventListener
+document.querySelectorAll('.mesa-item').forEach(el => {
+    el.addEventListener('click', function() {
+        const id     = parseInt(this.dataset.mesaId);
+        const num    = parseInt(this.dataset.mesaNumero);
+        const estado = this.dataset.mesaEstado;
+        seleccionarMesa(id, num, estado);
+    });
 });
 
-function liberarMesa(id, numero) {
-    if (!confirm(`¿Confirmas liberar la Mesa ${numero}?\nEsto cancelará el pedido activo.`)) return;
-    fetch(`/pos/mesa/${id}/liberar`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            const el = document.querySelector(`[data-mesa-id="${id}"]`);
-            el.classList.remove('mesa-ocupada');
-            el.classList.add('mesa-disponible');
-            el.dataset.mesaEstado = 'disponible';
-            if (mesaSeleccionada === id) {
-                deseleccionarMesa();
-                ticket = [];
-                pedidoActual = null;
-                actualizarTicket();
-                document.getElementById('infoMesa').textContent = 'Sin mesa';
-            }
-            mostrarToast(`Mesa ${numero} liberada correctamente`, 'success');
-        } else {
-            mostrarToast(data.message, 'danger');
-        }
-    })
-    .catch(() => mostrarToast('Error al liberar la mesa', 'danger'));
-}
 
 // Ticket
 function agregarProducto(id, nombre, precio) {
@@ -945,7 +918,10 @@ function verReservaciones(mesaId) {
     document.getElementById('modalReservacionesCuerpo').innerHTML = html;
     new bootstrap.Modal(document.getElementById('modalReservaciones')).show();
 }
+
+const RESERVACIONES = @json($reservaciones);
 </script>
+
 <style>
 @keyframes fadeIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
 </style>
