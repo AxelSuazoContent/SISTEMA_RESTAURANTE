@@ -1,0 +1,113 @@
+@extends('layouts.app')
+
+@section('title', 'Editar Usuario')
+
+@section('content')
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-person-gear"></i> Editar Usuario</h1>
+    <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ route('admin.usuarios.update', $usuario) }}">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre" class="form-label">Nombre Completo *</label>
+                            <input type="text" 
+                                   class="form-control @error('nombre') is-invalid @enderror" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   value="{{ old('nombre', $usuario->nombre) }}" 
+                                   required>
+                            @error('nombre')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Correo Electrónico *</label>
+                            <input type="email" 
+                                   class="form-control @error('email') is-invalid @enderror" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ old('email', $usuario->email) }}" 
+                                   required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" 
+                                   class="form-control @error('password') is-invalid @enderror" 
+                                   id="password" 
+                                   name="password"
+                                   minlength="6"
+                                   placeholder="Dejar en blanco para no cambiar">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" 
+                                   class="form-control @error('telefono') is-invalid @enderror" 
+                                   id="telefono" 
+                                   name="telefono" 
+                                   value="{{ old('telefono', $usuario->telefono) }}">
+                            @error('telefono')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="rol" class="form-label">Rol *</label>
+                            <select class="form-select @error('rol') is-invalid @enderror" 
+                                    id="rol" 
+                                    name="rol" 
+                                    required>
+                                <option value="">Selecciona un rol</option>
+                                <option value="admin" {{ old('rol', $usuario->rol) === 'admin' ? 'selected' : '' }}>Administrador</option>
+                                <option value="recepcionista" {{ old('rol', $usuario->rol) === 'recepcionista' ? 'selected' : '' }}>Recepcionista</option>
+                                <option value="cocina" {{ old('rol', $usuario->rol) === 'cocina' ? 'selected' : '' }}>Cocina</option>
+                            </select>
+                            @error('rol')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label d-block">Estado</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="activo" name="activo" value="1" 
+                                    {{ old('activo', $usuario->activo) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="activo">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Actualizar Usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
