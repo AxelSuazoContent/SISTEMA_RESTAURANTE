@@ -18,6 +18,7 @@ class Pago extends Model
         'cambio',
         'referencia',
         'notas',
+        'cliente_rtn',
     ];
 
     protected $casts = [

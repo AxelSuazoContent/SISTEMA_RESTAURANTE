@@ -120,6 +120,7 @@ return view('pos.index', compact(
             $mesa->estado = 'ocupada';
             $mesa->save();
         }
+        
 
         DB::commit();
 
@@ -293,6 +294,13 @@ return view('pos.index', compact(
             'referencia' => 'nullable|string|max:255',
         ]);
 
+        if ($request->metodo_pago === 'transferencia' && empty($request->referencia)) {
+    return response()->json([
+        'success' => false,
+        'message' => 'El código de transacción es obligatorio para transferencias.',
+    ], 422);
+}
+
         DB::beginTransaction();
 
         try {
@@ -300,13 +308,14 @@ return view('pos.index', compact(
 
             // Crear el pago
             Pago::create([
-                'pedido_id' => $pedido->id,
-                'metodo_pago' => $request->metodo_pago,
-                'monto' => $pedido->total,
-                'cambio' => $cambio,
-                'referencia' => $request->referencia,
-                'notas' => $request->notas,
-            ]);
+            'pedido_id'   => $pedido->id,
+            'metodo_pago' => $request->metodo_pago,
+            'monto'       => $pedido->total,
+            'cambio'      => $cambio,
+            'referencia'  => $request->referencia,
+            'notas'       => $request->notas,
+            'cliente_rtn' => $request->cliente_rtn,
+        ]);
 
             // Actualizar pedido
             $pedido->estado = 'pagado';

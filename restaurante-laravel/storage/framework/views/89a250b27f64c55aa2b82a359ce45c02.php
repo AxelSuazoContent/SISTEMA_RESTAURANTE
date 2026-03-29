@@ -121,35 +121,32 @@
                 </small>
             </div>
             <div class="card-body">
-                
-
                 <div class="mesa-grid">
-                    
-<?php $__currentLoopData = $mesas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mesa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-<?php
-    $reservasMesa   = $reservaciones->get($mesa->id, collect());
-    $proximaReserva = $reservasMesa->first();
-?>
-<div class="position-relative">
-    <div class="mesa-item mesa-<?php echo e($mesa->estado); ?>"
-         id="mesa-<?php echo e($mesa->id); ?>"
-         data-mesa-id="<?php echo e($mesa->id); ?>"
-         data-mesa-numero="<?php echo e($mesa->numero); ?>"
-         data-mesa-estado="<?php echo e($mesa->estado); ?>">
-        <i class="bi bi-<?php echo e($mesa->capacidad > 4 ? 'people' : 'person'); ?>" style="font-size:1.4rem"></i>
-        <span><?php echo e($mesa->numero); ?></span>
-        <small><?php echo e($mesa->capacidad); ?>p</small>
-    </div>
-    <?php if($proximaReserva): ?>
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-          style="font-size:.6rem; cursor:pointer; z-index:10;"
-          onclick="event.stopPropagation(); verReservaciones(<?php echo e($mesa->id); ?>)">
-        <i class="bi bi-calendar-check"></i> <?php echo e($reservasMesa->count()); ?>
+                    <?php $__currentLoopData = $mesas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mesa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        $reservasMesa   = $reservaciones->get($mesa->id, collect());
+                        $proximaReserva = $reservasMesa->first();
+                    ?>
+                    <div class="position-relative">
+                        <div class="mesa-item mesa-<?php echo e($mesa->estado); ?>"
+                             id="mesa-<?php echo e($mesa->id); ?>"
+                             data-mesa-id="<?php echo e($mesa->id); ?>"
+                             data-mesa-numero="<?php echo e($mesa->numero); ?>"
+                             data-mesa-estado="<?php echo e($mesa->estado); ?>">
+                            <i class="bi bi-<?php echo e($mesa->capacidad > 4 ? 'people' : 'person'); ?>" style="font-size:1.4rem"></i>
+                            <span><?php echo e($mesa->numero); ?></span>
+                            <small><?php echo e($mesa->capacidad); ?>p</small>
+                        </div>
+                        <?php if($proximaReserva): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                              style="font-size:.6rem; cursor:pointer; z-index:10;"
+                              onclick="event.stopPropagation(); verReservaciones(<?php echo e($mesa->id); ?>)">
+                            <i class="bi bi-calendar-check"></i> <?php echo e($reservasMesa->count()); ?>
 
-    </span>
-    <?php endif; ?>
-</div>
-<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
         </div>
@@ -327,12 +324,12 @@
                 <button class="btn btn-primary w-100" id="btnVerPedidoMesa">
                     <i class="bi bi-eye"></i> Ver pedido activo
                 </button>
-                
                 <button class="btn btn-secondary w-100" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="modalReservaciones" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -349,6 +346,7 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="modalDetallePedido" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -362,14 +360,14 @@
                 </div>
             </div>
             <div class="modal-footer">
-    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-    <button class="btn btn-danger" id="btnCancelarPedido">
-        <i class="bi bi-x-circle"></i> Cancelar Pedido
-    </button>
-    <button class="btn btn-success" id="btnCobrarPedido">
-        <i class="bi bi-cash"></i> Cobrar
-    </button>
-</div>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button class="btn btn-danger d-none" id="btnCancelarPedido">
+                    <i class="bi bi-x-circle"></i> Cancelar Pedido
+                </button>
+                <button class="btn btn-success d-none" id="btnCobrarPedido">
+                    <i class="bi bi-cash"></i> Cobrar
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -387,6 +385,7 @@
                     <p class="text-muted mb-1">Total a Pagar</p>
                     <h2 class="text-success" id="totalCobrar">$0.00</h2>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Método de Pago</label>
                     <select class="form-select" id="metodoPago">
@@ -396,6 +395,8 @@
                         <option value="otro">📋 Otro</option>
                     </select>
                 </div>
+
+                
                 <div id="campoEfectivo">
                     <label class="form-label fw-semibold">Monto Recibido</label>
                     <div class="input-group mb-2">
@@ -407,9 +408,28 @@
                         <h4 class="mb-0 text-primary" id="cambio">$0.00</h4>
                     </div>
                 </div>
-                <div id="campoReferencia" class="d-none">
-                    <label class="form-label fw-semibold">Referencia / Número de operación</label>
-                    <input type="text" class="form-control" id="referenciaPago" placeholder="Opcional">
+
+                
+                <div id="campoReferencia" class="d-none mt-3">
+                    <label class="form-label fw-semibold">
+                        Código de transacción
+                        <span id="referenciaRequerida" class="text-danger d-none">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="referenciaPago"
+                           placeholder="Número de referencia / transacción">
+                    <div id="referenciaError" class="text-danger small mt-1 d-none">
+                        El código de transacción es obligatorio para transferencias.
+                    </div>
+                </div>
+
+                
+                <div class="mt-3">
+                    <label class="form-label fw-semibold">
+                        RTN del cliente
+                        <span class="text-muted fw-normal" style="font-size:0.8rem;">(opcional)</span>
+                    </label>
+                    <input type="text" class="form-control" id="clienteRTN"
+                           placeholder="RTN empresa o persona jurídica">
                 </div>
             </div>
             <div class="modal-footer">
@@ -426,15 +446,15 @@
 
 <?php $__env->startSection('scripts'); ?>
 <script>
-// Variable global de cierre de caja desde PHP
-const CAJA_CERRADA = <?php echo e($cierreCaja ? 'true' : 'false'); ?>;
+const CAJA_CERRADA   = <?php echo e($cierreCaja ? 'true' : 'false'); ?>;
+const RESERVACIONES  = <?php echo json_encode($reservaciones, 15, 512) ?>;
 
 let ticket           = [];
 let mesaSeleccionada = null;
 let pedidoActual     = null;
 let mesaModal        = { id: null, numero: null };
 
-// Tipo de pedido
+// ── Tipo de pedido ──────────────────────────────────────────────────────────
 document.querySelectorAll('input[name="tipoPedido"]').forEach(radio => {
     radio.addEventListener('change', function () {
         const tipo = this.value;
@@ -451,7 +471,7 @@ document.querySelectorAll('input[name="tipoPedido"]').forEach(radio => {
     });
 });
 
-// Filtro categorías
+// ── Filtro categorías ───────────────────────────────────────────────────────
 document.querySelectorAll('#categoriasTab .nav-link').forEach(link => {
     link.addEventListener('click', function (e) {
         e.preventDefault();
@@ -464,8 +484,17 @@ document.querySelectorAll('#categoriasTab .nav-link').forEach(link => {
     });
 });
 
-// Mesas
-function seleccionarMesa(id, numero, estado, horaReserva) {
+// ── Clicks de mesas ─────────────────────────────────────────────────────────
+document.querySelectorAll('.mesa-item').forEach(el => {
+    el.addEventListener('click', function () {
+        const id     = parseInt(this.dataset.mesaId);
+        const num    = parseInt(this.dataset.mesaNumero);
+        const estado = this.dataset.mesaEstado;
+        seleccionarMesa(id, num, estado);
+    });
+});
+
+function seleccionarMesa(id, numero, estado) {
     if (CAJA_CERRADA) {
         mostrarToast('Las operaciones están cerradas.', 'warning');
         return;
@@ -479,17 +508,6 @@ function seleccionarMesa(id, numero, estado, horaReserva) {
     if (estado === 'inactiva') {
         mostrarToast('Esta mesa está inactiva y no puede usarse', 'warning');
         return;
-    }
-    if (estado === 'reservada' && horaReserva) {
-        const ahora   = new Date();
-        const partes  = horaReserva.split(':');
-        const reserva = new Date();
-        reserva.setHours(parseInt(partes[0]), parseInt(partes[1]), 0);
-        const diffMin = (reserva - ahora) / 60000;
-        if (diffMin > 30) {
-            mostrarToast(`Mesa reservada a las ${horaReserva}. Disponible 30 min antes.`, 'warning');
-            return;
-        }
     }
     deseleccionarMesa();
     mesaSeleccionada = id;
@@ -510,18 +528,7 @@ document.getElementById('btnVerPedidoMesa').addEventListener('click', function (
     verDetallePedidoPorMesa(mesaModal.id);
 });
 
-// Registrar clicks de mesas via addEventListener
-document.querySelectorAll('.mesa-item').forEach(el => {
-    el.addEventListener('click', function() {
-        const id     = parseInt(this.dataset.mesaId);
-        const num    = parseInt(this.dataset.mesaNumero);
-        const estado = this.dataset.mesaEstado;
-        seleccionarMesa(id, num, estado);
-    });
-});
-
-
-// Ticket
+// ── Ticket ───────────────────────────────────────────────────────────────────
 function agregarProducto(id, nombre, precio) {
     if (CAJA_CERRADA) {
         mostrarToast('Las operaciones están cerradas.', 'warning');
@@ -557,8 +564,7 @@ function actualizarTicket() {
     const vacio2    = ticket.length === 0;
 
     vacio.classList.toggle('d-none', !vacio2);
-    // Si la caja está cerrada, el botón siempre deshabilitado
-    document.getElementById('btnEnviar').disabled  = vacio2 || CAJA_CERRADA;
+    document.getElementById('btnEnviar').disabled   = vacio2 || CAJA_CERRADA;
     document.getElementById('btnCancelar').disabled = vacio2;
 
     if (!vacio2) {
@@ -609,6 +615,7 @@ function cancelarTicket() {
     document.getElementById('infoMesa').textContent = 'Sin mesa';
 }
 
+// ── Enviar pedido ────────────────────────────────────────────────────────────
 function enviarPedido() {
     if (CAJA_CERRADA) {
         mostrarToast('Las operaciones están cerradas. No se pueden enviar pedidos.', 'warning');
@@ -632,7 +639,7 @@ function enviarPedido() {
 
     const data = {
         tipo,
-        mesa_id: mesaSeleccionada,
+        mesa_id:          mesaSeleccionada,
         cliente_nombre:   document.getElementById('clienteNombre')?.value  || '',
         cliente_telefono: document.getElementById('clienteTelefono')?.value || '',
         productos: ticket.map(i => ({ id: i.id, cantidad: i.cantidad, notas: i.notas }))
@@ -641,8 +648,8 @@ function enviarPedido() {
     fetch('<?php echo e(route("pos.pedido.crear")); ?>', {
         method: 'POST',
         headers: {
-            'Content-Type':  'application/json',
-            'X-CSRF-TOKEN':  document.querySelector('meta[name="csrf-token"]').content
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
         body: JSON.stringify(data)
     })
@@ -675,6 +682,7 @@ function enviarPedido() {
     });
 }
 
+// ── Ver detalle pedido ───────────────────────────────────────────────────────
 function verDetallePedido(id) {
     pedidoActual = { id };
     document.getElementById('modalDetalleCuerpo').innerHTML =
@@ -758,37 +766,46 @@ function renderDetallePedido(p) {
     `;
 
     const btnCobrar   = document.getElementById('btnCobrarPedido');
-const btnCancelar = document.getElementById('btnCancelarPedido');
+    const btnCancelar = document.getElementById('btnCancelarPedido');
 
-if (p.estado === 'pagado' || p.estado === 'cancelado') {
-    btnCobrar.classList.add('d-none');
-    btnCancelar.classList.add('d-none');
-} else {
-    btnCobrar.classList.remove('d-none');
-    btnCobrar.onclick = () => abrirModalCobrar(p.id, p.total);
-
-    btnCancelar.classList.remove('d-none');
-    btnCancelar.onclick = () => cancelarPedido(p.id);
+    if (p.estado === 'pagado' || p.estado === 'cancelado') {
+        btnCobrar.classList.add('d-none');
+        btnCancelar.classList.add('d-none');
+    } else {
+        btnCobrar.classList.remove('d-none');
+        btnCobrar.onclick = () => abrirModalCobrar(p.id, p.total);
+        btnCancelar.classList.remove('d-none');
+        btnCancelar.onclick = () => cancelarPedido(p.id);
+    }
 }
-}
 
+// ── Cobrar ───────────────────────────────────────────────────────────────────
 function abrirModalCobrar(pedidoId, total) {
     bootstrap.Modal.getInstance(document.getElementById('modalDetallePedido'))?.hide();
     pedidoActual = { id: pedidoId, total };
     document.getElementById('totalCobrar').textContent = '$' + parseFloat(total).toFixed(2);
-    document.getElementById('montoRecibido').value = '';
-    document.getElementById('cambio').textContent = '$0.00';
-    document.getElementById('referenciaPago').value = '';
-    document.getElementById('metodoPago').value = 'efectivo';
+    document.getElementById('montoRecibido').value     = '';
+    document.getElementById('cambio').textContent      = '$0.00';
+    document.getElementById('referenciaPago').value    = '';
+    document.getElementById('clienteRTN').value        = '';
+    document.getElementById('metodoPago').value        = 'efectivo';
     document.getElementById('campoEfectivo').classList.remove('d-none');
     document.getElementById('campoReferencia').classList.add('d-none');
+    document.getElementById('referenciaRequerida').classList.add('d-none');
+    document.getElementById('referenciaError').classList.add('d-none');
     setTimeout(() => new bootstrap.Modal(document.getElementById('modalCobrar')).show(), 300);
 }
 
 document.getElementById('metodoPago').addEventListener('change', function () {
-    const esEfectivo = this.value === 'efectivo';
+    const metodo          = this.value;
+    const esEfectivo      = metodo === 'efectivo';
+    const esTransferencia = metodo === 'transferencia';
+
     document.getElementById('campoEfectivo').classList.toggle('d-none', !esEfectivo);
     document.getElementById('campoReferencia').classList.toggle('d-none', esEfectivo);
+    document.getElementById('referenciaRequerida').classList.toggle('d-none', !esTransferencia);
+    document.getElementById('referenciaError').classList.add('d-none');
+    document.getElementById('referenciaPago').value = '';
 });
 
 document.getElementById('montoRecibido').addEventListener('input', function () {
@@ -800,14 +817,25 @@ document.getElementById('montoRecibido').addEventListener('input', function () {
 
 function procesarPago() {
     if (!pedidoActual) return;
-    const metodo   = document.getElementById('metodoPago').value;
-    const total    = parseFloat(document.getElementById('totalCobrar').textContent.replace('$',''));
-    const recibido = parseFloat(document.getElementById('montoRecibido').value) || 0;
+
+    const metodo     = document.getElementById('metodoPago').value;
+    const total      = parseFloat(document.getElementById('totalCobrar').textContent.replace('$',''));
+    const recibido   = parseFloat(document.getElementById('montoRecibido').value) || 0;
+    const referencia = document.getElementById('referenciaPago').value.trim();
+    const clienteRTN = document.getElementById('clienteRTN').value.trim();
 
     if (metodo === 'efectivo' && recibido < total) {
         mostrarToast('El monto recibido es menor al total', 'warning');
         return;
     }
+
+    // Código de transacción obligatorio para transferencias
+    if (metodo === 'transferencia' && !referencia) {
+        document.getElementById('referenciaError').classList.remove('d-none');
+        document.getElementById('referenciaPago').focus();
+        return;
+    }
+    document.getElementById('referenciaError').classList.add('d-none');
 
     fetch(`/pos/pedido/${pedidoActual.id}/pagar`, {
         method: 'POST',
@@ -818,7 +846,8 @@ function procesarPago() {
         body: JSON.stringify({
             metodo_pago:    metodo,
             monto_recibido: metodo === 'efectivo' ? recibido : total,
-            referencia:     document.getElementById('referenciaPago').value
+            referencia:     document.getElementById('referenciaPago').value.trim(),
+            cliente_rtn:    document.getElementById('clienteRTN').value.trim()
         })
     })
     .then(r => r.json())
@@ -848,33 +877,18 @@ function procesarPago() {
     .catch(() => mostrarToast('Error de conexión', 'danger'));
 }
 
-function mostrarToast(mensaje, tipo = 'info') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px';
-        document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${tipo} shadow mb-0 py-2 px-3`;
-    toast.style.cssText = 'min-width:260px;animation:fadeIn .2s ease';
-    toast.innerHTML = `<i class="bi bi-${tipo==='success'?'check-circle':tipo==='danger'?'x-circle':'exclamation-circle'}"></i> ${mensaje}`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
+// ── Cancelar pedido ──────────────────────────────────────────────────────────
 function cancelarPedido(id) {
     if (!confirm('¿Estás seguro de que deseas cancelar este pedido?')) return;
 
     fetch(`/pos/pedido/${id}/cancelar`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    },
-    body: JSON.stringify({ motivo: 'Cancelado desde POS' })
-})
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ motivo: 'Cancelado desde POS' })
+    })
     .then(r => r.json())
     .then(data => {
         if (data.success) {
@@ -888,6 +902,7 @@ function cancelarPedido(id) {
     .catch(() => mostrarToast('Error de conexión.', 'danger'));
 }
 
+// ── Reservaciones ────────────────────────────────────────────────────────────
 function verReservaciones(mesaId) {
     const lista = RESERVACIONES[mesaId] || [];
     let html = '<ul class="list-group list-group-flush">';
@@ -924,9 +939,23 @@ function verReservaciones(mesaId) {
     new bootstrap.Modal(document.getElementById('modalReservaciones')).show();
 }
 
-const RESERVACIONES = <?php echo json_encode($reservaciones, 15, 512) ?>;
+// ── Toast ────────────────────────────────────────────────────────────────────
+function mostrarToast(mensaje, tipo = 'info') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${tipo} shadow mb-0 py-2 px-3`;
+    toast.style.cssText = 'min-width:260px;animation:fadeIn .2s ease';
+    toast.innerHTML = `<i class="bi bi-${tipo==='success'?'check-circle':tipo==='danger'?'x-circle':'exclamation-circle'}"></i> ${mensaje}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
 </script>
-
 <style>
 @keyframes fadeIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
 </style>

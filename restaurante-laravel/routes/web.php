@@ -65,50 +65,51 @@ Route::middleware('can:admin')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'dashboard'])
         ->name('dashboard')->middleware('can:admin');
+// Factura imprimir — accesible para recepcionista también
+Route::get('/facturas/{factura}/imprimir', [AdminController::class, 'facturasImprimir'])
+    ->name('facturas.imprimir');
 
-    Route::middleware('can:admin')->group(function () {
-        // Usuarios
-        Route::get('/usuarios', [AdminController::class, 'usuariosIndex'])->name('usuarios.index');
-        Route::get('/usuarios/crear', [AdminController::class, 'usuariosCreate'])->name('usuarios.create');
-        Route::post('/usuarios', [AdminController::class, 'usuariosStore'])->name('usuarios.store');
-        Route::get('/usuarios/{usuario}/editar', [AdminController::class, 'usuariosEdit'])->name('usuarios.edit');
-        Route::put('/usuarios/{usuario}', [AdminController::class, 'usuariosUpdate'])->name('usuarios.update');
-        Route::delete('/usuarios/{usuario}', [AdminController::class, 'usuariosDestroy'])->name('usuarios.destroy');
+Route::middleware('can:admin')->group(function () {
+    // Usuarios
+    Route::get('/usuarios', [AdminController::class, 'usuariosIndex'])->name('usuarios.index');
+    Route::get('/usuarios/crear', [AdminController::class, 'usuariosCreate'])->name('usuarios.create');
+    Route::post('/usuarios', [AdminController::class, 'usuariosStore'])->name('usuarios.store');
+    Route::get('/usuarios/{usuario}/editar', [AdminController::class, 'usuariosEdit'])->name('usuarios.edit');
+    Route::put('/usuarios/{usuario}', [AdminController::class, 'usuariosUpdate'])->name('usuarios.update');
+    Route::delete('/usuarios/{usuario}', [AdminController::class, 'usuariosDestroy'])->name('usuarios.destroy');
 
-        // Categorías
-        Route::get('/categorias', [AdminController::class, 'categoriasIndex'])->name('categorias.index');
-        Route::post('/categorias', [AdminController::class, 'categoriasStore'])->name('categorias.store');
-        Route::put('/categorias/{categoria}', [AdminController::class, 'categoriasUpdate'])->name('categorias.update');
-        Route::delete('/categorias/{categoria}', [AdminController::class, 'categoriasDestroy'])->name('categorias.destroy');
+    // Categorías
+    Route::get('/categorias', [AdminController::class, 'categoriasIndex'])->name('categorias.index');
+    Route::post('/categorias', [AdminController::class, 'categoriasStore'])->name('categorias.store');
+    Route::put('/categorias/{categoria}', [AdminController::class, 'categoriasUpdate'])->name('categorias.update');
+    Route::delete('/categorias/{categoria}', [AdminController::class, 'categoriasDestroy'])->name('categorias.destroy');
 
-        // Productos
-        Route::get('/productos', [AdminController::class, 'productosIndex'])->name('productos.index');
-        Route::get('/productos/crear', [AdminController::class, 'productosCreate'])->name('productos.create');
-        Route::post('/productos', [AdminController::class, 'productosStore'])->name('productos.store');
-        Route::get('/productos/{producto}/editar', [AdminController::class, 'productosEdit'])->name('productos.edit');
-        Route::put('/productos/{producto}', [AdminController::class, 'productosUpdate'])->name('productos.update');
-        Route::delete('/productos/{producto}', [AdminController::class, 'productosDestroy'])->name('productos.destroy');
+    // Productos
+    Route::get('/productos', [AdminController::class, 'productosIndex'])->name('productos.index');
+    Route::get('/productos/crear', [AdminController::class, 'productosCreate'])->name('productos.create');
+    Route::post('/productos', [AdminController::class, 'productosStore'])->name('productos.store');
+    Route::get('/productos/{producto}/editar', [AdminController::class, 'productosEdit'])->name('productos.edit');
+    Route::put('/productos/{producto}', [AdminController::class, 'productosUpdate'])->name('productos.update');
+    Route::delete('/productos/{producto}', [AdminController::class, 'productosDestroy'])->name('productos.destroy');
 
-        
+    // Reservaciones
+    Route::patch('/mesas/{mesa}/reservar', [AdminController::class, 'mesasCambiarEstado'])->name('mesas.reservar');
 
-        // Reservaciones — admin y recepcionista
-        Route::patch('/mesas/{mesa}/reservar', [AdminController::class, 'mesasCambiarEstado'])->name('mesas.reservar');
+    // Reportes
+    Route::get('/reportes/ventas', [AdminController::class, 'reporteVentas'])->name('reportes.ventas');
 
-        // Reportes
-        Route::get('/reportes/ventas', [AdminController::class, 'reporteVentas'])->name('reportes.ventas');
+    // Facturas — solo índice para admin
+    Route::get('/facturas', [AdminController::class, 'facturasIndex'])->name('facturas.index');
 
-        // Facturas
-        Route::get('/facturas', [AdminController::class, 'facturasIndex'])->name('facturas.index');
-        Route::get('/facturas/{factura}/imprimir', [AdminController::class, 'facturasImprimir'])->name('facturas.imprimir');
+    // Cierre de caja
+    Route::get('/cierre-caja', [AdminController::class, 'cierreCaja'])->name('cierre.caja');
 
-        // Cierre de caja
-        Route::get('/cierre-caja', [AdminController::class, 'cierreCaja'])->name('cierre.caja');
-
-        // Configuración de factura
-        Route::get('/config-factura', [AdminController::class, 'configFacturaIndex'])->name('config.factura');
-        Route::post('/config-factura', [AdminController::class, 'configFacturaUpdate'])->name('config.factura.update');
-    });
+    // Configuración de factura
+    Route::get('/config-factura', [AdminController::class, 'configFacturaIndex'])->name('config.factura');
+    Route::post('/config-factura', [AdminController::class, 'configFacturaUpdate'])->name('config.factura.update');
 });
+});
+
 
 // ==================== POS ====================
 Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {
