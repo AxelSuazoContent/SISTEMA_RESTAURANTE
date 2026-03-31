@@ -51,7 +51,7 @@
     .producto-item .precio { font-weight: 700; color: var(--verde); }
     .producto-sin-stock { opacity: .45; pointer-events: none; }
 
-    #ticketPanel { max-height: calc(100vh - 340px); overflow-y: auto; }
+    #ticketPanel { max-height: calc(100vh - 420px); overflow-y: auto; }
     .ticket-item { border-bottom: 1px solid #eee; padding: 10px 0; }
     .ticket-item:last-child { border-bottom: none; }
     .cantidad-control { display: flex; align-items: center; gap: 5px; }
@@ -160,8 +160,12 @@
                         <input type="text" class="form-control" id="clienteNombre" placeholder="Nombre del cliente">
                     </div>
                     <div class="col-md-6">
-                        <input type="tel" class="form-control" id="clienteTelefono" placeholder="Teléfono">
-                    </div>
+    <input type="tel" class="form-control" id="clienteTelefono" placeholder="Teléfono"
+           inputmode="numeric"
+           maxlength="8"
+           minlength="8"
+           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
+</div>
                 </div>
             </div>
         </div>
@@ -228,7 +232,7 @@
 
     
     <div class="col-lg-4">
-        <div class="card sticky-top" style="top:16px">
+        <div class="card sticky-top" style="top:16px; z-index:100; max-height:calc(100vh - 32px); overflow-y:auto;">
             <div class="card-header bg-primary text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-receipt"></i> Ticket</span>
@@ -628,6 +632,16 @@ function enviarPedido() {
         mostrarToast('Selecciona una mesa primero', 'warning');
         return;
     }
+    // ← aquí
+if (tipo !== 'mesa') {
+    const tel = document.getElementById('clienteTelefono').value;
+    if (tel && (!/^\d+$/.test(tel) || tel.length !== 8)) {
+        mostrarToast('El teléfono debe tener exactamente 8 dígitos numéricos', 'warning');
+        return;
+    }
+}
+
+
     if (ticket.length === 0) {
         mostrarToast('Agrega productos al ticket', 'warning');
         return;

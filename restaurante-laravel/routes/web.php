@@ -109,7 +109,7 @@ Route::middleware('can:admin')->group(function () {
     Route::post('/config-factura', [AdminController::class, 'configFacturaUpdate'])->name('config.factura.update');
 });
 });
-
+Route::post('admin/horario', [\App\Http\Controllers\Admin\HorarioController::class, 'update'])->name('admin.horario.update');
 
 // ==================== POS ====================
 Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {

@@ -61,11 +61,15 @@
 
                         <div class="col-md-6 mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" 
-                                   class="form-control @error('telefono') is-invalid @enderror" 
-                                   id="telefono" 
-                                   name="telefono" 
-                                   value="{{ old('telefono') }}">
+                            <input type="tel" 
+                                class="form-control @error('telefono') is-invalid @enderror" 
+                                id="telefono" 
+                                name="telefono" 
+                                value="{{ old('telefono') }}"
+                                inputmode="numeric"
+                                maxlength="8"
+                                minlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
                             @error('telefono')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

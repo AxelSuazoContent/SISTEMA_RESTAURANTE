@@ -25,21 +25,29 @@
                                    value="{{ old('nombre_negocio', $config->nombre_negocio) }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">RTN *</label>
-                            <input type="text" class="form-control" name="rtn"
-                                   value="{{ old('rtn', $config->rtn) }}" required
-                                   placeholder="08011999123456">
-                        </div>
+                        <label class="form-label">RTN *</label>
+                        <input type="text" class="form-control" name="rtn"
+                            value="{{ old('rtn', $config->rtn) }}" required
+                            placeholder="08011999123456"
+                            inputmode="numeric"
+                            maxlength="14"
+                            minlength="14"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 14)">
+                    </div>
                         <div class="col-md-8">
                             <label class="form-label">Dirección *</label>
                             <input type="text" class="form-control" name="direccion"
                                    value="{{ old('direccion', $config->direccion) }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Teléfono *</label>
-                            <input type="text" class="form-control" name="telefono"
-                                   value="{{ old('telefono', $config->telefono) }}" required>
-                        </div>
+                        <label class="form-label">Teléfono *</label>
+                        <input type="tel" class="form-control" name="telefono"
+                            value="{{ old('telefono', $config->telefono) }}" required
+                            inputmode="numeric"
+                            maxlength="8"
+                            minlength="8"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
+                    </div>
                     </div>
 
                     <hr class="my-3">

@@ -103,7 +103,7 @@ class AdminController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'rol' => 'required|in:admin,recepcionista,cocina',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => 'nullable|digits:8',
         ]);
 
         User::create([
@@ -194,6 +194,7 @@ class AdminController extends Controller
             'descripcion' => 'nullable|string',
             'color' => 'required|string|max:7',
             'orden' => 'nullable|integer',
+            'orden'  => 'required|integer|min:0|unique:categorias,orden,' . $categoria->id,
         ]);
 
         Categoria::create([
@@ -665,9 +666,9 @@ public function configFacturaUpdate(Request $request)
 {
     $request->validate([
         'nombre_negocio'       => 'required|string|max:255',
-        'rtn'                  => 'required|string|max:20',
+        'rtn'                  => 'required|digits:14',
         'direccion'            => 'required|string|max:255',
-        'telefono'             => 'required|string|max:20',
+        'telefono'             => 'required|digits:8',
         'cai'                  => 'required|string|max:50',
         'rango_desde'          => 'required|string|max:25',
         'rango_hasta'          => 'required|string|max:25',

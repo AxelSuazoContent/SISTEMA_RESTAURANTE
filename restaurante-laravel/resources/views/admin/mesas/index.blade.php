@@ -64,17 +64,35 @@
     color: #7d5a00;
     margin-left: 6px;
 }
-
 </style>
 @endsection
  
 @section('content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="bi bi-grid-3x3"></i> Mesas</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
-        <i class="bi bi-plus-lg"></i> Nueva Mesa
-    </button>
+    <div class="d-flex gap-2">
+        @if(auth()->user()->esAdmin())
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalHorario">
+            <i class="bi bi-clock"></i> Horario Laboral
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            <i class="bi bi-plus-lg"></i> Nueva Mesa
+        </button>
+        @endif
+    </div>
 </div>
+
+{{-- Horario actual visible --}}
+@if(auth()->user()->esAdmin())
+<div class="alert alert-light border d-flex align-items-center gap-2 mb-3" style="font-size:13px">
+    <i class="bi bi-clock text-primary"></i>
+    <span>
+        Horario laboral: 
+        <strong>{{ config('horario.apertura') }}</strong> — 
+        <strong>{{ config('horario.cierre') }}</strong>
+    </span>
+</div>
+@endif
  
 <div class="card">
     <div class="card-body p-0">
@@ -118,42 +136,39 @@
                             @endif
                         </td>
                         <td>
-                        {{-- Solo admin --}}
-                        @if(auth()->user()->esAdmin())
-                        <button type="button" class="btn btn-sm btn-outline-secondary me-1"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalEstado{{ $mesa->id }}"
-                                title="Cambiar estado">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                        @endif
-
-                        {{-- Admin y recepcionista --}}
-                        <button type="button" class="btn btn-sm btn-outline-warning me-1"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalReservar{{ $mesa->id }}"
-                                title="Reservar mesa">
-                            <i class="bi bi-calendar-check"></i>
-                        </button>
-
-                        {{-- Solo admin --}}
-                        @if(auth()->user()->esAdmin())
-                        <button type="button" class="btn btn-sm btn-warning me-1"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalEditar{{ $mesa->id }}"
-                                title="Editar mesa">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <form action="{{ route('admin.mesas.destroy', $mesa) }}" method="POST" class="d-inline"
-                            onsubmit="return confirm('¿Estás seguro de eliminar esta mesa?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
-                                <i class="bi bi-trash"></i>
+                            @if(auth()->user()->esAdmin())
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEstado{{ $mesa->id }}"
+                                    title="Cambiar estado">
+                                <i class="bi bi-arrow-repeat"></i>
                             </button>
-                        </form>
-                        @endif
-                    </td>
+                            @endif
+
+                            <button type="button" class="btn btn-sm btn-outline-warning me-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalReservar{{ $mesa->id }}"
+                                    title="Reservar mesa">
+                                <i class="bi bi-calendar-check"></i>
+                            </button>
+
+                            @if(auth()->user()->esAdmin())
+                            <button type="button" class="btn btn-sm btn-warning me-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditar{{ $mesa->id }}"
+                                    title="Editar mesa">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form action="{{ route('admin.mesas.destroy', $mesa) }}" method="POST" class="d-inline"
+                                onsubmit="return confirm('¿Estás seguro de eliminar esta mesa?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            @endif
+                        </td>
                     </tr>
                     @empty
                     <tr>
@@ -171,6 +186,51 @@
         {{ $mesas->links() }}
     </div>
     @endif
+</div>
+
+
+{{-- ══════════════════════════════════════
+     MODAL HORARIO LABORAL
+══════════════════════════════════════ --}}
+<div class="modal fade" id="modalHorario" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('admin.horario.update') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-clock me-1"></i> Horario Laboral
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" style="font-size:13px">
+                        Define las horas en que el local opera. Las reservaciones solo se podrán hacer dentro de este rango.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-sunrise me-1 text-warning"></i> Apertura
+                        </label>
+                        <input type="time" class="form-control" name="apertura"
+                               value="{{ config('horario.apertura') }}" required>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-sunset me-1 text-danger"></i> Cierre
+                        </label>
+                        <input type="time" class="form-control" name="cierre"
+                               value="{{ config('horario.cierre') }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check-lg me-1"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 
@@ -233,8 +293,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-
-                    {{-- Fecha --}}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-calendar me-1"></i> Fecha de reserva
@@ -249,7 +307,6 @@
                                onchange="actualizarMinHora(this, {{ $mesa->id }})">
                     </div>
 
-                    {{-- Hora --}}
                     <div class="mb-2">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-clock me-1"></i> Hora de reserva
@@ -258,51 +315,51 @@
                                class="form-control"
                                name="hora_reserva"
                                id="horaReserva{{ $mesa->id }}"
-                               min="{{ now()->format('H:i') }}"
-                               value="{{ $mesa->hora_reserva ? \Carbon\Carbon::parse($mesa->hora_reserva)->format('H:i') : now()->addHour()->format('H:i') }}"
+                               min="{{ config('horario.apertura') }}"
+                               max="{{ config('horario.cierre') }}"
+                               value="{{ now()->addHour()->format('H:i') }}"
                                required>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            Horario: {{ config('horario.apertura') }} — {{ config('horario.cierre') }}
+                        </div>
                     </div>
 
-                    <div class="form-text">
-                        La mesa aparecerá como "libre pronto" 30 min antes de esta hora.
-                    </div>
-
-                    {{-- Aviso error --}}
                     <div id="errorReserva{{ $mesa->id }}" class="alert alert-danger py-2 mt-2 d-none" style="font-size:13px">
                         <i class="bi bi-exclamation-triangle me-1"></i>
                         <span></span>
                     </div>
-                                    {{-- Nombre cliente --}}
-                <div class="mb-2 mt-3">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person me-1"></i> Nombre del cliente
-                    </label>
-                    <input type="text" class="form-control"
-                        name="cliente_nombre"
-                        placeholder="Nombre (opcional)">
-                </div>
 
-                {{-- Teléfono --}}
-                <div class="mb-2">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-telephone me-1"></i> Teléfono
-                    </label>
-                    <input type="tel" class="form-control"
-                        name="cliente_telefono"
-                        placeholder="Teléfono (opcional)">
-                </div>
+                    <div class="mb-2 mt-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-person me-1"></i> Nombre del cliente
+                        </label>
+                        <input type="text" class="form-control"
+                               name="cliente_nombre"
+                               placeholder="Nombre (opcional)">
+                    </div>
 
-                {{-- Notas --}}
-                <div class="mb-2">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-chat-left-text me-1"></i> Notas
-                    </label>
-                    <textarea class="form-control" name="notas"
-                            rows="2"
-                            placeholder="Alguna indicación especial..."></textarea>
-                </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-telephone me-1"></i> Teléfono
+                        </label>
+                        <input type="tel" class="form-control"
+                               name="cliente_telefono"
+                               placeholder="Teléfono (opcional)"
+                               inputmode="numeric"
+                               maxlength="8"
+                               minlength="8"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
+                    </div>
 
-
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-chat-left-text me-1"></i> Notas
+                        </label>
+                        <textarea class="form-control" name="notas"
+                                  rows="2"
+                                  placeholder="Alguna indicación especial..."></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
@@ -323,14 +380,10 @@
         <div class="modal-content">
             <form method="POST" action="{{ route('admin.mesas.store') }}">
                 @csrf
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2"><i class="bi bi-grid-3x3"></i> Mesas</h1>
-    @if(auth()->user()->esAdmin())
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
-        <i class="bi bi-plus-lg"></i> Nueva Mesa
-    </button>
-    @endif
-</div>
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-lg me-1"></i> Nueva Mesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="numero" class="form-label">Número *</label>
@@ -342,8 +395,12 @@
                     </div>
                     <div class="mb-3">
                         <label for="ubicacion" class="form-label">Ubicación</label>
-                        <input type="text" class="form-control" id="ubicacion" name="ubicacion"
-                               placeholder="Ej: Interior, Terraza, etc.">
+                        <select class="form-select" id="ubicacion" name="ubicacion">
+                            <option value="">Sin ubicación</option>
+                            @foreach(['Interior','Terraza','Jardín','Bar','Privado','Salón VIP'] as $ub)
+                                <option>{{ $ub }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -381,8 +438,12 @@
                     </div>
                     <div class="mb-3">
                         <label for="ubicacion{{ $mesa->id }}" class="form-label">Ubicación</label>
-                        <input type="text" class="form-control" id="ubicacion{{ $mesa->id }}"
-                               name="ubicacion" value="{{ $mesa->ubicacion }}">
+                        <select class="form-select" id="ubicacion{{ $mesa->id }}" name="ubicacion">
+                            <option value="">Sin ubicación</option>
+                            @foreach(['Interior','Terraza','Jardín','Bar','Privado','Salón VIP'] as $ub)
+                                <option {{ $mesa->ubicacion === $ub ? 'selected' : '' }}>{{ $ub }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -399,44 +460,46 @@
 
 @section('scripts')
 <script>
-// Actualiza el min de hora según la fecha seleccionada
+const HORARIO_APERTURA = '{{ config('horario.apertura') }}';
+const HORARIO_CIERRE   = '{{ config('horario.cierre') }}';
+
 function actualizarMinHora(fechaInput, mesaId) {
-    var horaInput = document.getElementById('horaReserva' + mesaId);
-    var hoy       = new Date().toISOString().split('T')[0];
+    const horaInput = document.getElementById('horaReserva' + mesaId);
+    const hoy       = new Date().toISOString().split('T')[0];
 
     if (fechaInput.value === hoy) {
-        // Si es hoy, la hora mínima es ahora
-        var ahora = new Date();
-        var hh    = String(ahora.getHours()).padStart(2, '0');
-        var mm    = String(ahora.getMinutes()).padStart(2, '0');
-        horaInput.min = hh + ':' + mm;
+        const ahora = new Date();
+        const hh    = String(ahora.getHours()).padStart(2, '0');
+        const mm    = String(ahora.getMinutes()).padStart(2, '0');
+        // El mínimo es el mayor entre ahora y la apertura
+        horaInput.min = HORARIO_APERTURA;
     } else {
-        // Si es otro día, cualquier hora es válida
-        horaInput.min = '00:00';
+        horaInput.min = HORARIO_APERTURA;
     }
-
-    // Limpiar el valor si ya no es válido
+    horaInput.max   = HORARIO_CIERRE;
     horaInput.value = '';
 }
 
-// Validación antes de enviar el form
 function validarReserva(form) {
-    var fechaInput = form.querySelector('input[name="fecha_reserva"]');
-    var horaInput  = form.querySelector('input[name="hora_reserva"]');
-    var mesaId     = horaInput.id.replace('horaReserva', '');
-    var errorDiv   = document.getElementById('errorReserva' + mesaId);
+    const fechaInput = form.querySelector('input[name="fecha_reserva"]');
+    const horaInput  = form.querySelector('input[name="hora_reserva"]');
+    const mesaId     = horaInput.id.replace('horaReserva', '');
+    const errorDiv   = document.getElementById('errorReserva' + mesaId);
+    const errorSpan  = errorDiv.querySelector('span');
 
-    var hoy        = new Date().toISOString().split('T')[0];
-    var ahora      = new Date();
-    var fechaSel   = fechaInput.value;
-    var horaSel    = horaInput.value;
-
-    // Construir datetime seleccionado
-    var dtSel = new Date(fechaSel + 'T' + horaSel + ':00');
+    const ahora  = new Date();
+    const dtSel  = new Date(fechaInput.value + 'T' + horaInput.value + ':00');
 
     if (dtSel <= ahora) {
+        errorSpan.textContent = 'No puedes reservar en una fecha u hora pasada.';
         errorDiv.classList.remove('d-none');
-        errorDiv.querySelector('span').textContent = 'No puedes reservar en una fecha u hora pasada.';
+        return false;
+    }
+
+    // Validar que esté dentro del horario laboral
+    if (horaInput.value < HORARIO_APERTURA || horaInput.value > HORARIO_CIERRE) {
+        errorSpan.textContent = `La hora debe estar entre ${HORARIO_APERTURA} y ${HORARIO_CIERRE}.`;
+        errorDiv.classList.remove('d-none');
         return false;
     }
 
@@ -444,25 +507,25 @@ function validarReserva(form) {
     return true;
 }
 
-// Al abrir el modal de reserva, actualizar la hora mínima
 document.querySelectorAll('[id^="modalReservar"]').forEach(function(modal) {
     modal.addEventListener('show.bs.modal', function() {
-        var mesaId     = this.id.replace('modalReservar', '');
-        var fechaInput = document.getElementById('fechaReserva' + mesaId);
-        var horaInput  = document.getElementById('horaReserva' + mesaId);
+        const mesaId     = this.id.replace('modalReservar', '');
+        const fechaInput = document.getElementById('fechaReserva' + mesaId);
+        const horaInput  = document.getElementById('horaReserva' + mesaId);
 
-        // Poner fecha mínima = hoy
-        var hoy = new Date().toISOString().split('T')[0];
+        const hoy = new Date().toISOString().split('T')[0];
         fechaInput.min   = hoy;
         fechaInput.value = hoy;
 
-        // Poner hora mínima = ahora + 15 min
-        var ahora = new Date();
+        const ahora = new Date();
         ahora.setMinutes(ahora.getMinutes() + 15);
-        var hh = String(ahora.getHours()).padStart(2, '0');
-        var mm = String(ahora.getMinutes()).padStart(2, '0');
-        horaInput.min   = hh + ':' + mm;
-        horaInput.value = hh + ':' + mm;
+        const hh = String(ahora.getHours()).padStart(2, '0');
+        const mm = String(ahora.getMinutes()).padStart(2, '0');
+        const horaActual = hh + ':' + mm;
+
+        horaInput.min   = HORARIO_APERTURA;
+        horaInput.max   = HORARIO_CIERRE;
+        horaInput.value = horaInput.min;
     });
 });
 </script>

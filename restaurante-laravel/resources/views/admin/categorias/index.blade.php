@@ -99,7 +99,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="orden" class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden" name="orden" value="0">
+                            <input type="number" class="form-control" id="orden" name="orden" value="0" min="0">
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="orden{{ $categoria->id }}" class="form-label">Orden</label>
                             <input type="number" class="form-control" id="orden{{ $categoria->id }}" 
-                                   name="orden" value="{{ $categoria->orden }}">
+       name="orden" value="{{ $categoria->orden }}" min="0">
                         </div>
                     </div>
                     <div class="mb-3 form-check">

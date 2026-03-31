@@ -103,8 +103,8 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="col-md-6 mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" 
-                                   class="form-control <?php $__errorArgs = ['telefono'];
+                            <input type="tel" 
+                                class="form-control <?php $__errorArgs = ['telefono'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -112,9 +112,13 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                   id="telefono" 
-                                   name="telefono" 
-                                   value="<?php echo e(old('telefono')); ?>">
+                                id="telefono" 
+                                name="telefono" 
+                                value="<?php echo e(old('telefono')); ?>"
+                                inputmode="numeric"
+                                maxlength="8"
+                                minlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
                             <?php $__errorArgs = ['telefono'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
