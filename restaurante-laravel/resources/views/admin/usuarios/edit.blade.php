@@ -66,7 +66,12 @@
                                    class="form-control @error('telefono') is-invalid @enderror" 
                                    id="telefono" 
                                    name="telefono" 
-                                   value="{{ old('telefono', $usuario->telefono) }}">
+                                   value="{{ old('telefono', $usuario->telefono) }}"
+                                inputmode="numeric"
+                                maxlength="8"
+                                minlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
+                                   
                             @error('telefono')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
