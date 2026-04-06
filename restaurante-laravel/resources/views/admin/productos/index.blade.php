@@ -9,7 +9,26 @@
         <i class="bi bi-plus-lg"></i> Nuevo Producto
     </a>
 </div>
-
+<div class="mb-3">
+    <form action="{{ route('admin.productos.index') }}" method="GET" class="d-flex gap-2">
+        <input 
+            type="text" 
+            name="buscar" 
+            value="{{ $buscar }}" 
+            class="form-control" 
+            placeholder="Buscar por nombre..."
+            style="max-width: 300px;"
+        >
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+        @if($buscar)
+            <a href="{{ route('admin.productos.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Limpiar
+            </a>
+        @endif
+    </form>
+</div>
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -86,8 +105,9 @@
     </div>
     @if($productos->hasPages())
     <div class="card-footer">
-        {{ $productos->links() }}
+        {{ $productos->appends(['buscar' => $buscar])->links() }}
     </div>
     @endif
 </div>
+
 @endsection

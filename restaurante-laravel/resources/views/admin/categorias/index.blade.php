@@ -16,7 +16,6 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Orden</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>Color</th>
@@ -27,7 +26,6 @@
                 <tbody>
                     @forelse($categorias as $categoria)
                     <tr>
-                        <td>{{ $categoria->orden }}</td>
                         <td>{{ $categoria->nombre }}</td>
                         <td>{{ Str::limit($categoria->descripcion, 50) }}</td>
                         <td>
@@ -41,11 +39,11 @@
                             </span>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" 
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                     data-bs-target="#modalEditar{{ $categoria->id }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <form action="{{ route('admin.categorias.destroy', $categoria) }}" method="POST" class="d-inline" 
+                            <form action="{{ route('admin.categorias.destroy', $categoria) }}" method="POST" class="d-inline"
                                   onsubmit="return confirm('¿Estás seguro de eliminar esta categoría?')">
                                 @csrf
                                 @method('DELETE')
@@ -57,7 +55,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="5" class="text-center text-muted py-4">
                             No hay categorías registradas
                         </td>
                     </tr>
@@ -73,7 +71,7 @@
     @endif
 </div>
 
-<!-- Modal Crear -->
+{{-- MODAL CREAR --}}
 <div class="modal fade" id="modalCrear" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -92,15 +90,10 @@
                         <label for="descripcion" class="form-label">Descripción</label>
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="color" class="form-label">Color</label>
-                            <input type="color" class="form-control" id="color" name="color" value="#6c757d">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="orden" class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden" name="orden" value="0" min="0">
-                        </div>
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color"
+                               id="color" name="color" value="#6c757d">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -112,7 +105,7 @@
     </div>
 </div>
 
-<!-- Modales Editar -->
+{{-- MODALES EDITAR --}}
 @foreach($categorias as $categoria)
 <div class="modal fade" id="modalEditar{{ $categoria->id }}" tabindex="-1">
     <div class="modal-dialog">
@@ -127,28 +120,22 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nombre{{ $categoria->id }}" class="form-label">Nombre *</label>
-                        <input type="text" class="form-control" id="nombre{{ $categoria->id }}" 
+                        <input type="text" class="form-control" id="nombre{{ $categoria->id }}"
                                name="nombre" value="{{ $categoria->nombre }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="descripcion{{ $categoria->id }}" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion{{ $categoria->id }}" 
+                        <textarea class="form-control" id="descripcion{{ $categoria->id }}"
                                   name="descripcion" rows="2">{{ $categoria->descripcion }}</textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="color{{ $categoria->id }}" class="form-label">Color</label>
-                            <input type="color" class="form-control" id="color{{ $categoria->id }}" 
-                                   name="color" value="{{ $categoria->color }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="orden{{ $categoria->id }}" class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden{{ $categoria->id }}" 
-       name="orden" value="{{ $categoria->orden }}" min="0">
-                        </div>
+                    <div class="mb-3">
+                        <label for="color{{ $categoria->id }}" class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color"
+                               id="color{{ $categoria->id }}"
+                               name="color" value="{{ $categoria->color }}">
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="activo{{ $categoria->id }}" 
+                        <input type="checkbox" class="form-check-input" id="activo{{ $categoria->id }}"
                                name="activo" value="1" {{ $categoria->activo ? 'checked' : '' }}>
                         <label class="form-check-label" for="activo{{ $categoria->id }}">Activa</label>
                     </div>

@@ -57,7 +57,7 @@ $rol = auth()->user()->rol;
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('admin.cierre.caja') ? 'active' : '' }}" 
        href="{{ route('admin.cierre.caja') }}">
-        <i class="bi bi-cash-stack"></i> Cierre de Caja
+        <i class="bi bi-cash-stack"></i> Caja
     </a>
 </li>
             

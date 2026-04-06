@@ -39,6 +39,10 @@ class AdminController extends Controller
             ->where('activo', true)
             ->count();
 
+        
+
+
+
         // Pedidos recientes
         $pedidosRecientes = Pedido::with(['mesa', 'usuario'])
             ->orderBy('created_at', 'desc')
@@ -180,7 +184,7 @@ class AdminController extends Controller
      */
     public function categoriasIndex()
     {
-        $categorias = Categoria::orderBy('orden')->paginate(20);
+        $categorias = Categoria::orderBy('nombre')->paginate(20);
         return view('admin.categorias.index', compact('categorias'));
     }
 
@@ -193,15 +197,13 @@ class AdminController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'color' => 'required|string|max:7',
-            'orden' => 'nullable|integer',
-            'orden'  => 'required|integer|min:0|unique:categorias,orden,' . $categoria->id,
+            
         ]);
 
         Categoria::create([
     'nombre'      => $request->nombre,
     'descripcion' => $request->descripcion,
     'color'       => $request->color,
-    'orden'       => $request->orden,
     'activo'      => $request->has('activo') ? 1 : 0,
 ]);
 
@@ -226,7 +228,6 @@ class AdminController extends Controller
     'nombre'      => $request->nombre,
     'descripcion' => $request->descripcion,
     'color'       => $request->color,
-    'orden'       => $request->orden,
     'activo'      => $request->has('activo') ? 1 : 0,
 ]);
 
@@ -255,16 +256,17 @@ class AdminController extends Controller
     /**
      * Lista de productos
      */
-    public function productosIndex()
-    {
-        $productos = Producto::with('categoria')
-            ->orderBy('nombre')
-            ->paginate(20);
-        
-        $categorias = Categoria::where('activo', true)->orderBy('nombre')->get();
-        
-        return view('admin.productos.index', compact('productos', 'categorias'));
-    }
+    
+public function productosIndex(Request $request)
+{
+    $buscar = $request->input('buscar', '');
+
+    $productos = Producto::with('categoria')
+        ->buscarPorNombre($buscar)
+        ->paginate(15);
+
+    return view('admin.productos.index', compact('productos', 'buscar'));
+}
 
     /**
      * Formulario para crear producto
@@ -295,8 +297,45 @@ class AdminController extends Controller
     $data['activo'] = $request->has('activo') ? 1 : 0;
 
         if ($request->hasFile('imagen')) {
-            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
-        }
+    $imagen        = $request->file('imagen');
+    $nombreArchivo = uniqid() . '.jpg';
+    $rutaDestino   = storage_path('app/public/productos/');
+
+    if (!file_exists($rutaDestino)) {
+        mkdir($rutaDestino, 0755, true);
+    }
+
+    $extension = strtolower($imagen->getClientOriginalExtension());
+    $rutaTmp   = $imagen->getRealPath();
+
+    if (in_array($extension, ['jpg', 'jpeg'])) {
+        $src = imagecreatefromjpeg($rutaTmp);
+    } elseif ($extension === 'png') {
+        $src = imagecreatefrompng($rutaTmp);
+    } elseif ($extension === 'webp') {
+        $src = imagecreatefromwebp($rutaTmp);
+    } else {
+        $src = imagecreatefromjpeg($rutaTmp);
+    }
+
+    $anchoOrig  = imagesx($src);
+    $altoOrig   = imagesy($src);
+    $maxSize    = 600;
+    $ratio      = min($maxSize / $anchoOrig, $maxSize / $altoOrig, 1);
+    $nuevoAncho = (int)($anchoOrig * $ratio);
+    $nuevoAlto  = (int)($altoOrig  * $ratio);
+
+    $dst    = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
+    $blanco = imagecolorallocate($dst, 255, 255, 255);
+    imagefill($dst, 0, 0, $blanco);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $anchoOrig, $altoOrig);
+
+    imagejpeg($dst, $rutaDestino . $nombreArchivo, 75);
+    imagedestroy($src);
+    imagedestroy($dst);
+
+    $data['imagen'] = 'productos/' . $nombreArchivo;
+}
 
         Producto::create($data);
 
@@ -334,12 +373,45 @@ class AdminController extends Controller
         $data['activo'] = $request->has('activo') ? 1 : 0;
 
         if ($request->hasFile('imagen')) {
-            // Eliminar imagen anterior si existe
-            if ($producto->imagen) {
-                \Storage::disk('public')->delete($producto->imagen);
-            }
-            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
-        }
+    $imagen        = $request->file('imagen');
+    $nombreArchivo = uniqid() . '.jpg';
+    $rutaDestino   = storage_path('app/public/productos/');
+
+    if (!file_exists($rutaDestino)) {
+        mkdir($rutaDestino, 0755, true);
+    }
+
+    $extension = strtolower($imagen->getClientOriginalExtension());
+    $rutaTmp   = $imagen->getRealPath();
+
+    if (in_array($extension, ['jpg', 'jpeg'])) {
+        $src = imagecreatefromjpeg($rutaTmp);
+    } elseif ($extension === 'png') {
+        $src = imagecreatefrompng($rutaTmp);
+    } elseif ($extension === 'webp') {
+        $src = imagecreatefromwebp($rutaTmp);
+    } else {
+        $src = imagecreatefromjpeg($rutaTmp);
+    }
+
+    $anchoOrig  = imagesx($src);
+    $altoOrig   = imagesy($src);
+    $maxSize    = 600;
+    $ratio      = min($maxSize / $anchoOrig, $maxSize / $altoOrig, 1);
+    $nuevoAncho = (int)($anchoOrig * $ratio);
+    $nuevoAlto  = (int)($altoOrig  * $ratio);
+
+    $dst    = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
+    $blanco = imagecolorallocate($dst, 255, 255, 255);
+    imagefill($dst, 0, 0, $blanco);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $anchoOrig, $altoOrig);
+
+    imagejpeg($dst, $rutaDestino . $nombreArchivo, 75);
+    imagedestroy($src);
+    imagedestroy($dst);
+
+    $data['imagen'] = 'productos/' . $nombreArchivo;
+}
 
         $producto->update($data);
 
@@ -485,7 +557,13 @@ public function cierreCaja(Request $request)
 {
     $hoy = Carbon::today();
 
-    $ventas = Pedido::whereDate('created_at', $hoy)
+    // Apertura de caja del día
+    $apertura = AperturaCaja::cajaAbiertaHoy();
+
+    // Calcular ventas SOLO desde la apertura de esta caja
+    $desdeCuando = $apertura ? $apertura->apertura_at : $hoy;
+
+    $ventas = Pedido::where('created_at', '>=', $desdeCuando)
         ->where('estado', 'pagado')
         ->with(['pago', 'mesa'])
         ->get();
@@ -497,10 +575,7 @@ public function cierreCaja(Request $request)
     $totalDia           = $ventas->sum('total');
     $totalPedidos       = $ventas->count();
 
-    // Apertura de caja del día
-    $apertura = AperturaCaja::cajaAbiertaHoy();
-
-    // Si hay caja abierta, calcular diferencia esperada
+    // Esperado = lo que metí + lo que vendí en efectivo en ESTA apertura
     $totalEsperado = $apertura ? $apertura->monto_inicial + $totalEfectivo : null;
 
     return view('admin.cierre-caja', compact(
@@ -557,12 +632,12 @@ public function cerrarCaja(Request $request)
         return back()->with('error', 'No hay una caja abierta hoy.');
     }
 
-    $hoy      = Carbon::today();
-    $ventasDia = Pedido::whereDate('created_at', $hoy)
+    // Calcular ventas SOLO desde esta apertura
+    $ventasDia = Pedido::where('created_at', '>=', $apertura->apertura_at)
         ->where('estado', 'pagado')
         ->sum('total');
 
-    $totalEfectivo = Pedido::whereDate('created_at', $hoy)
+    $totalEfectivo = Pedido::where('created_at', '>=', $apertura->apertura_at)
         ->where('estado', 'pagado')
         ->whereHas('pago', fn($q) => $q->where('metodo_pago', 'efectivo'))
         ->sum('total');
@@ -654,6 +729,7 @@ public function cerrarCaja(Request $request)
 
 
     }
+
     // ==================== CONFIG FACTURA ====================
 
 public function configFacturaIndex()
@@ -698,6 +774,7 @@ public function abrirOperaciones()
     Mesa::where('estado', 'inactiva')->update(['estado' => 'disponible']);
     return response()->json(['success' => true]);
 }
+
 
 }
 

@@ -56,12 +56,9 @@ Route::post('/caja/cerrar', [AdminController::class, 'cerrarCaja'])->name('caja.
 Route::post('/mesas/cerrar-operaciones', [AdminController::class, 'cerrarOperaciones'])->name('mesas.cerrar.operaciones');
 Route::post('/mesas/abrir-operaciones', [AdminController::class, 'abrirOperaciones'])->name('mesas.abrir.operaciones');   
     // Caja
-Route::middleware('can:admin')->group(function () {
-    Route::post('/caja/abrir', [AdminController::class, 'abrirCaja'])->name('caja.abrir');
-    Route::post('/caja/cerrar', [AdminController::class, 'cerrarCaja'])->name('caja.cerrar');
-});
 
-    Route::post('/mesas/cerrar-operaciones', [AdminController::class, 'cerrarOperaciones'])->name('mesas.cerrar.operaciones');
+
+    
 
     Route::get('/dashboard', [AdminController::class, 'dashboard'])
         ->name('dashboard')->middleware('can:admin');

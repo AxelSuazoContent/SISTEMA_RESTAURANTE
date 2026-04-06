@@ -16,7 +16,6 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Orden</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>Color</th>
@@ -27,7 +26,6 @@
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $categorias; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categoria): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
-                        <td><?php echo e($categoria->orden); ?></td>
                         <td><?php echo e($categoria->nombre); ?></td>
                         <td><?php echo e(Str::limit($categoria->descripcion, 50)); ?></td>
                         <td>
@@ -43,11 +41,11 @@
                             </span>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" 
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                     data-bs-target="#modalEditar<?php echo e($categoria->id); ?>">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <form action="<?php echo e(route('admin.categorias.destroy', $categoria)); ?>" method="POST" class="d-inline" 
+                            <form action="<?php echo e(route('admin.categorias.destroy', $categoria)); ?>" method="POST" class="d-inline"
                                   onsubmit="return confirm('¿Estás seguro de eliminar esta categoría?')">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
@@ -59,7 +57,7 @@
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="5" class="text-center text-muted py-4">
                             No hay categorías registradas
                         </td>
                     </tr>
@@ -76,7 +74,7 @@
     <?php endif; ?>
 </div>
 
-<!-- Modal Crear -->
+
 <div class="modal fade" id="modalCrear" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -95,15 +93,10 @@
                         <label for="descripcion" class="form-label">Descripción</label>
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="color" class="form-label">Color</label>
-                            <input type="color" class="form-control" id="color" name="color" value="#6c757d">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="orden" class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden" name="orden" value="0" min="0">
-                        </div>
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color"
+                               id="color" name="color" value="#6c757d">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -115,7 +108,7 @@
     </div>
 </div>
 
-<!-- Modales Editar -->
+
 <?php $__currentLoopData = $categorias; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categoria): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 <div class="modal fade" id="modalEditar<?php echo e($categoria->id); ?>" tabindex="-1">
     <div class="modal-dialog">
@@ -130,28 +123,22 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nombre<?php echo e($categoria->id); ?>" class="form-label">Nombre *</label>
-                        <input type="text" class="form-control" id="nombre<?php echo e($categoria->id); ?>" 
+                        <input type="text" class="form-control" id="nombre<?php echo e($categoria->id); ?>"
                                name="nombre" value="<?php echo e($categoria->nombre); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="descripcion<?php echo e($categoria->id); ?>" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion<?php echo e($categoria->id); ?>" 
+                        <textarea class="form-control" id="descripcion<?php echo e($categoria->id); ?>"
                                   name="descripcion" rows="2"><?php echo e($categoria->descripcion); ?></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="color<?php echo e($categoria->id); ?>" class="form-label">Color</label>
-                            <input type="color" class="form-control" id="color<?php echo e($categoria->id); ?>" 
-                                   name="color" value="<?php echo e($categoria->color); ?>">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="orden<?php echo e($categoria->id); ?>" class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden<?php echo e($categoria->id); ?>" 
-       name="orden" value="<?php echo e($categoria->orden); ?>" min="0">
-                        </div>
+                    <div class="mb-3">
+                        <label for="color<?php echo e($categoria->id); ?>" class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color"
+                               id="color<?php echo e($categoria->id); ?>"
+                               name="color" value="<?php echo e($categoria->color); ?>">
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="activo<?php echo e($categoria->id); ?>" 
+                        <input type="checkbox" class="form-check-input" id="activo<?php echo e($categoria->id); ?>"
                                name="activo" value="1" <?php echo e($categoria->activo ? 'checked' : ''); ?>>
                         <label class="form-check-label" for="activo<?php echo e($categoria->id); ?>">Activa</label>
                     </div>
@@ -166,5 +153,4 @@
 </div>
 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Ryzen Gaming\Documents\aaa\SISTEMA_RESTAURANTE\restaurante-laravel\resources\views/admin/categorias/index.blade.php ENDPATH**/ ?>

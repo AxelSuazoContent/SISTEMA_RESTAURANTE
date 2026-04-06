@@ -57,7 +57,7 @@ $rol = auth()->user()->rol;
 <li class="nav-item">
     <a class="nav-link <?php echo e(request()->routeIs('admin.cierre.caja') ? 'active' : ''); ?>" 
        href="<?php echo e(route('admin.cierre.caja')); ?>">
-        <i class="bi bi-cash-stack"></i> Cierre de Caja
+        <i class="bi bi-cash-stack"></i> Caja
     </a>
 </li>
             

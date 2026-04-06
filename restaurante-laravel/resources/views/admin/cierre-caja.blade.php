@@ -272,9 +272,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="bi bi-lock me-1"></i> Cerrar Caja
-                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarCierre()">
+                    <i class="bi bi-lock me-1"></i> Cerrar Caja
+                </button>
                 </div>
             </form>
         </div>
@@ -303,7 +303,31 @@ function cerrarOperaciones() {
         }
     });
 }
+function confirmarCierre() {
+    const montoFinal    = parseFloat(document.querySelector('[name="monto_final"]').value);
+    const montoEsperado = {{ $totalEsperado ?? 0 }};
 
+    if (isNaN(montoFinal)) {
+        alert('Por favor ingresa el monto contado.');
+        return;
+    }
+
+    const diferencia = montoFinal - montoEsperado;
+
+    if (diferencia !== 0) {
+        const tipo  = diferencia > 0 ? 'SOBRANTE' : 'FALTANTE';
+        const monto = Math.abs(diferencia).toFixed(2);
+
+        alert(`⚠️ No se puede cerrar la caja\n\n`
+            + `Esperado:  $${montoEsperado.toFixed(2)}\n`
+            + `Contado:   $${montoFinal.toFixed(2)}\n`
+            + `${tipo}:   $${monto}\n\n`
+            + `El monto contado debe ser exactamente $${montoEsperado.toFixed(2)}.`);
+        return; // ← bloquea el cierre
+    }
+
+    document.querySelector('#modalCerrarCaja form').submit();
+}
 function abrirOperaciones() {
     if (!confirm('¿Confirmas abrir operaciones?\nTodas las mesas quedarán disponibles.')) return;
 

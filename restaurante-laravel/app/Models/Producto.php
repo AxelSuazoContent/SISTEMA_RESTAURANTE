@@ -54,7 +54,7 @@ class Producto extends Model
     {
         return $this->categoria ? $this->categoria->nombre : 'Sin categoría';
     }
-
+    
     /**
      * Scope para productos activos
      */
@@ -70,4 +70,9 @@ class Producto extends Model
     {
         return $query->where('stock', '>', 0);
     }
+    
+    public function scopeBuscarPorNombre($query, string $nombre)
+{
+    return $query->where('nombre', 'LIKE', '%' . $nombre . '%');
+}
 }

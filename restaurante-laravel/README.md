@@ -293,6 +293,9 @@ php artisan cache:clear
 chmod -R 755 storage
 chmod -R 755 bootstrap/cache
 ```
+### Optimizar antes de subir a producción
+php artisan optimize
+php artisan storage:link
 
 ### Las gráficas no aparecen
 El layout usa `@yield('scripts')` — asegúrate de usar `@section('scripts')` en las vistas, no `@push('scripts')`.

@@ -9,7 +9,26 @@
         <i class="bi bi-plus-lg"></i> Nuevo Producto
     </a>
 </div>
-
+<div class="mb-3">
+    <form action="<?php echo e(route('admin.productos.index')); ?>" method="GET" class="d-flex gap-2">
+        <input 
+            type="text" 
+            name="buscar" 
+            value="<?php echo e($buscar); ?>" 
+            class="form-control" 
+            placeholder="Buscar por nombre..."
+            style="max-width: 300px;"
+        >
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+        <?php if($buscar): ?>
+            <a href="<?php echo e(route('admin.productos.index')); ?>" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Limpiar
+            </a>
+        <?php endif; ?>
+    </form>
+</div>
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -89,11 +108,12 @@
     </div>
     <?php if($productos->hasPages()): ?>
     <div class="card-footer">
-        <?php echo e($productos->links()); ?>
+        <?php echo e($productos->appends(['buscar' => $buscar])->links()); ?>
 
     </div>
     <?php endif; ?>
 </div>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Ryzen Gaming\Documents\aaa\SISTEMA_RESTAURANTE\restaurante-laravel\resources\views/admin/productos/index.blade.php ENDPATH**/ ?>
