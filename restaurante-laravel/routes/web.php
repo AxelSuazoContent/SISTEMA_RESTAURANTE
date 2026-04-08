@@ -135,7 +135,8 @@ Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {
 });
 
 
-
+Route::get('admin/productos/export', [AdminController::class, 'productosExport'])->name('admin.productos.export');
+Route::get('admin/reportes/ventas/export', [AdminController::class, 'reporteVentasExport'])->name('admin.reportes.ventas.export');
 // ==================== COCINA ====================
 Route::middleware(['auth'])->prefix('cocina')->name('cocina.')->group(function () {
 

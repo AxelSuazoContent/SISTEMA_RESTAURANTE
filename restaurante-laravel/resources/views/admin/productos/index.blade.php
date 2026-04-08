@@ -5,9 +5,14 @@
 @section('content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="bi bi-box-seam"></i> Productos</h1>
-    <a href="{{ route('admin.productos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Nuevo Producto
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.productos.export') }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        </a>
+        <a href="{{ route('admin.productos.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Producto
+        </a>
+    </div>
 </div>
 <div class="mb-3">
     <form action="{{ route('admin.productos.index') }}" method="GET" class="d-flex gap-2">

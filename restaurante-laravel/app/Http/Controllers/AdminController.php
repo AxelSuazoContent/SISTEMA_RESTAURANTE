@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Exports\ProductosExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\AperturaCaja;
 use App\Models\ConfigFactura;
 use App\Models\Factura;
@@ -97,6 +98,101 @@ class AdminController extends Controller
         return view('admin.usuarios.create');
     }
 
+public function productosExport()
+{
+    $productos = Producto::with('categoria')->orderBy('nombre')->get();
+    
+    $html = '<table border="1">
+        <thead>
+            <tr style="background-color:#4472C4;color:white;font-weight:bold;">
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Costo</th>
+                <th>Stock</th>
+                <th>Preparación (min)</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+    foreach ($productos as $p) {
+        $html .= '<tr>
+            <td>' . $p->nombre . '</td>
+            <td>' . ($p->categoria->nombre ?? '—') . '</td>
+            <td>' . number_format($p->precio, 2) . '</td>
+            <td>' . number_format($p->costo ?? 0, 2) . '</td>
+            <td>' . $p->stock . '</td>
+            <td>' . $p->preparacion_minutos . '</td>
+            <td>' . ($p->activo ? 'Activo' : 'Inactivo') . '</td>
+        </tr>';
+    }
+
+    $html .= '</tbody></table>';
+
+    return response($html)
+        ->header('Content-Type', 'application/vnd.ms-excel')
+        ->header('Content-Disposition', 'attachment; filename="inventario-productos.xls"');
+}
+
+public function reporteVentasExport(Request $request)
+{
+    $fechaInicio = $request->filled('fecha_inicio')
+        ? Carbon::parse($request->fecha_inicio)->startOfDay()
+        : Carbon::now()->startOfMonth()->startOfDay();
+
+    $fechaFin = $request->filled('fecha_fin')
+        ? Carbon::parse($request->fecha_fin)->endOfDay()
+        : Carbon::now()->endOfDay();
+
+    $ventas = Pedido::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('estado', 'pagado')
+        ->with(['mesa', 'usuario', 'pago'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $totalVentas = $ventas->sum('total');
+
+    $html = '<table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr style="background-color:#4472C4;color:white;font-weight:bold;">
+                <th># Pedido</th>
+                <th>Fecha</th>
+                <th>Mesa / Cliente</th>
+                <th>Atendió</th>
+                <th>Método de Pago</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+    foreach ($ventas as $v) {
+        $mesa    = $v->mesa ? 'Mesa ' . $v->mesa->numero : ($v->cliente_nombre ?: 'Sin nombre');
+        $metodo  = $v->pago->metodo_pago ?? '—';
+        $html .= '<tr>
+            <td>#' . $v->id . '</td>
+            <td>' . $v->created_at->format('d/m/Y H:i') . '</td>
+            <td>' . $mesa . '</td>
+            <td>' . $v->usuario->nombre . '</td>
+            <td>' . $metodo . '</td>
+            <td>' . number_format($v->total, 2) . '</td>
+        </tr>';
+    }
+
+    $html .= '
+        </tbody>
+        <tfoot>
+            <tr style="font-weight:bold;background-color:#f2f2f2;">
+                <td colspan="5" align="right">TOTAL</td>
+                <td>' . number_format($totalVentas, 2) . '</td>
+            </tr>
+        </tfoot>
+    </table>';
+
+    return response($html)
+        ->header('Content-Type', 'application/vnd.ms-excel')
+        ->header('Content-Disposition', 'attachment; filename="reporte-ventas-' . $fechaInicio->format('Y-m-d') . '-' . $fechaFin->format('Y-m-d') . '.xls"');
+}
     /**
      * Guardar nuevo usuario
      */
