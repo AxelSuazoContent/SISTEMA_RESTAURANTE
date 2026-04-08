@@ -6,20 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-public function up(): void
-{
-    Schema::table('mesas', function (Blueprint $table) {
-        $table->time('hora_reserva')->nullable()->after('estado');
-    });
-}
+    public function up(): void
+    {
+        if (!Schema::hasColumn('mesas', 'hora_reserva')) {
+            Schema::table('mesas', function (Blueprint $table) {
+                $table->time('hora_reserva')->nullable()->after('estado');
+            });
+        }
+    }
 
-public function down(): void
-{
-    Schema::table('mesas', function (Blueprint $table) {
-        $table->dropColumn('hora_reserva');
-    });
-}
+    public function down(): void
+    {
+        if (Schema::hasColumn('mesas', 'hora_reserva')) {
+            Schema::table('mesas', function (Blueprint $table) {
+                $table->dropColumn('hora_reserva');
+            });
+        }
+    }
 };
