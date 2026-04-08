@@ -72,9 +72,7 @@
     <h1 class="h2"><i class="bi bi-grid-3x3"></i> Mesas</h1>
     <div class="d-flex gap-2">
         @if(auth()->user()->esAdmin())
-        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalHorario">
-            <i class="bi bi-clock"></i> Horario Laboral
-        </button>
+        
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
             <i class="bi bi-plus-lg"></i> Nueva Mesa
         </button>
@@ -188,50 +186,6 @@
     @endif
 </div>
 
-
-{{-- ══════════════════════════════════════
-     MODAL HORARIO LABORAL
-══════════════════════════════════════ --}}
-<div class="modal fade" id="modalHorario" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('admin.horario.update') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-clock me-1"></i> Horario Laboral
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted" style="font-size:13px">
-                        Define las horas en que el local opera. Las reservaciones solo se podrán hacer dentro de este rango.
-                    </p>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-sunrise me-1 text-warning"></i> Apertura
-                        </label>
-                        <input type="time" class="form-control" name="apertura"
-                               value="{{ config('horario.apertura') }}" required>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-sunset me-1 text-danger"></i> Cierre
-                        </label>
-                        <input type="time" class="form-control" name="cierre"
-                               value="{{ config('horario.cierre') }}" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="bi bi-check-lg me-1"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 
 {{-- MODALES DE ESTADO --}}
@@ -460,8 +414,7 @@
 
 @section('scripts')
 <script>
-const HORARIO_APERTURA = '{{ config('horario.apertura') }}';
-const HORARIO_CIERRE   = '{{ config('horario.cierre') }}';
+
 
 function actualizarMinHora(fechaInput, mesaId) {
     const horaInput = document.getElementById('horaReserva' + mesaId);

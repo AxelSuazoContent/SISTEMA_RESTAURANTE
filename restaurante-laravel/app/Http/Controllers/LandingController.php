@@ -13,8 +13,8 @@ class LandingController extends Controller
 {
     $config = ConfigFactura::obtener();
 
-    $apertura = (int) explode(':', env('HORARIO_APERTURA', '11:00'))[0];
-    $cierre   = (int) explode(':', env('HORARIO_CIERRE', '22:00'))[0];
+    $apertura = (int) explode(':', \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00'))[0];
+$cierre   = (int) explode(':', \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00'))[0];
 
     $horas = [];
     for ($h = $apertura; $h < $cierre; $h++) {

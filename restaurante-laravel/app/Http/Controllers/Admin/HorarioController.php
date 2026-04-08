@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuracion;
 use Illuminate\Http\Request;
 
 class HorarioController extends Controller
@@ -13,27 +14,9 @@ class HorarioController extends Controller
             'cierre'   => 'required|date_format:H:i|after:apertura',
         ]);
 
-        // Actualiza el .env
-        $this->setEnv('HORARIO_APERTURA', $request->apertura);
-        $this->setEnv('HORARIO_CIERRE',   $request->cierre);
-
-        // Limpia el cache de config
-        \Artisan::call('config:clear');
+        Configuracion::set('HORARIO_APERTURA', $request->apertura);
+        Configuracion::set('HORARIO_CIERRE', $request->cierre);
 
         return back()->with('success', 'Horario actualizado correctamente.');
-    }
-
-    private function setEnv(string $key, string $value): void
-    {
-        $path    = base_path('.env');
-        $content = file_get_contents($path);
-
-        if (str_contains($content, $key . '=')) {
-            $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
-        } else {
-            $content .= "\n{$key}={$value}";
-        }
-
-        file_put_contents($path, $content);
     }
 }
