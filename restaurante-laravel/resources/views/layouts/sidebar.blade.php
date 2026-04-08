@@ -51,7 +51,7 @@ $rol = auth()->user()->rol;
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('admin.config.factura') ? 'active' : '' }}"
        href="{{ route('admin.config.factura') }}">
-        <i class="bi bi-gear"></i> Config. Factura
+        <i class="bi bi-gear"></i> Configuraciónes
     </a>
 </li>
 <li class="nav-item">

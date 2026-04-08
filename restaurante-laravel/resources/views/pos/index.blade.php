@@ -392,7 +392,7 @@
                         <option value="efectivo">💵 Efectivo</option>
                         <option value="tarjeta">💳 Tarjeta</option>
                         <option value="transferencia">🏦 Transferencia</option>
-                        <option value="otro">📋 Otro</option>
+                        
                     </select>
                 </div>
 
@@ -422,15 +422,15 @@
                     </div>
                 </div>
 
-                {{-- RTN cliente (siempre opcional) --}}
-                <div class="mt-3">
-                    <label class="form-label fw-semibold">
-                        RTN del cliente
-                        <span class="text-muted fw-normal" style="font-size:0.8rem;">(opcional)</span>
-                    </label>
-                    <input type="text" class="form-control" id="clienteRTN"
-                           placeholder="RTN empresa o persona jurídica">
-                </div>
+                {{-- RTN cliente (solo tarjeta) --}}
+<div class="mt-3 d-none" id="campoRTN">
+    <label class="form-label fw-semibold">
+        RTN del cliente
+        <span class="text-muted fw-normal" style="font-size:0.8rem;">(opcional)</span>
+    </label>
+    <input type="text" class="form-control" id="clienteRTN"
+           placeholder="RTN empresa o persona jurídica">
+</div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -803,6 +803,7 @@ function abrirModalCobrar(pedidoId, total) {
     document.getElementById('campoReferencia').classList.add('d-none');
     document.getElementById('referenciaRequerida').classList.add('d-none');
     document.getElementById('referenciaError').classList.add('d-none');
+    document.getElementById('campoRTN').classList.add('d-none');
     setTimeout(() => new bootstrap.Modal(document.getElementById('modalCobrar')).show(), 300);
 }
 
@@ -810,12 +811,14 @@ document.getElementById('metodoPago').addEventListener('change', function () {
     const metodo          = this.value;
     const esEfectivo      = metodo === 'efectivo';
     const esTransferencia = metodo === 'transferencia';
+    const esTarjeta       = metodo === 'tarjeta';
 
     document.getElementById('campoEfectivo').classList.toggle('d-none', !esEfectivo);
-    document.getElementById('campoReferencia').classList.toggle('d-none', esEfectivo);
+    document.getElementById('campoReferencia').classList.toggle('d-none', esEfectivo || esTarjeta);
     document.getElementById('referenciaRequerida').classList.toggle('d-none', !esTransferencia);
     document.getElementById('referenciaError').classList.add('d-none');
     document.getElementById('referenciaPago').value = '';
+    document.getElementById('campoRTN').classList.toggle('d-none', !esTarjeta);
 });
 
 document.getElementById('montoRecibido').addEventListener('input', function () {
