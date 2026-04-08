@@ -86,8 +86,8 @@
     <i class="bi bi-clock text-primary"></i>
     <span>
         Horario laboral: 
-        <strong>{{ config('horario.apertura') }}</strong> — 
-        <strong>{{ config('horario.cierre') }}</strong>
+        <strong>{{ \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00') }}</strong> — 
+        <strong>{{ \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00') }}</strong>
     </span>
 </div>
 @endif
@@ -269,13 +269,13 @@
                                class="form-control"
                                name="hora_reserva"
                                id="horaReserva{{ $mesa->id }}"
-                               min="{{ config('horario.apertura') }}"
-                               max="{{ config('horario.cierre') }}"
+                               min="{{ \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00') }}"
+                               max="{{ \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00') }}"
                                value="{{ now()->addHour()->format('H:i') }}"
                                required>
                         <div class="form-text">
                             <i class="bi bi-info-circle"></i>
-                            Horario: {{ config('horario.apertura') }} — {{ config('horario.cierre') }}
+                            Horario: {{ \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00') }} — {{ \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00') }}
                         </div>
                     </div>
 

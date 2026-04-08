@@ -142,14 +142,14 @@
                             <i class="bi bi-sunrise me-1 text-warning"></i> Apertura
                         </label>
                         <input type="time" class="form-control" name="apertura"
-                               value="{{ config('horario.apertura') }}" required>
+                               value="{{ \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00') }}" required>
                     </div>
                     <div class="mb-1">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-sunset me-1 text-danger"></i> Cierre
                         </label>
                         <input type="time" class="form-control" name="cierre"
-                               value="{{ config('horario.cierre') }}" required>
+                               value="{{ \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00') }}" required>
                     </div>
                 </div>
                 <div class="modal-footer">
