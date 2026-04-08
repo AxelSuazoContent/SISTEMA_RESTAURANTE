@@ -50,12 +50,11 @@
                         <td>
                             
                             @if($producto->imagen)
-                                // DESPUÉS:
-                                    <img src="{{ $producto->imagen }}"
-                                     alt="{{ $producto->nombre }}" 
-                                     class="img-thumbnail" 
-                                     style="width: 50px; height: 50px; object-fit: cover;">
-                            @else
+    <img src="{{ $producto->imagen }}"
+         alt="{{ $producto->nombre }}" 
+         class="img-thumbnail" 
+         style="width: 50px; height: 50px; object-fit: cover;">
+@else
                                 <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
                                      style="width: 50px; height: 50px; border-radius: 4px;">
                                     <i class="bi bi-image"></i>
