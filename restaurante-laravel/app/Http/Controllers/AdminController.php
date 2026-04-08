@@ -256,13 +256,12 @@ class AdminController extends Controller
     /**
      * Lista de productos
      */
-    
 public function productosIndex(Request $request)
 {
     $buscar = $request->input('buscar', '');
 
     $productos = Producto::with('categoria')
-        ->buscarPorNombre($buscar)
+        ->when($buscar, fn($q) => $q->buscarPorNombre($buscar))
         ->paginate(15);
 
     return view('admin.productos.index', compact('productos', 'buscar'));
