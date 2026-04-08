@@ -50,7 +50,8 @@
                         <td>
                             
                             @if($producto->imagen)
-                                <img src="{{ asset('storage/' . $producto->imagen) }}" 
+                                // DESPUÉS:
+                                    <img src="{{ $producto->imagen }}"
                                      alt="{{ $producto->nombre }}" 
                                      class="img-thumbnail" 
                                      style="width: 50px; height: 50px; object-fit: cover;">

@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Models\Reservacion;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminController extends Controller
 {
@@ -297,44 +297,14 @@ public function productosIndex(Request $request)
     $data['activo'] = $request->has('activo') ? 1 : 0;
 
         if ($request->hasFile('imagen')) {
-    $imagen        = $request->file('imagen');
-    $nombreArchivo = uniqid() . '.jpg';
-    $rutaDestino   = storage_path('app/public/productos/');
-
-    if (!file_exists($rutaDestino)) {
-        mkdir($rutaDestino, 0755, true);
-    }
-
-    $extension = strtolower($imagen->getClientOriginalExtension());
-    $rutaTmp   = $imagen->getRealPath();
-
-    if (in_array($extension, ['jpg', 'jpeg'])) {
-        $src = imagecreatefromjpeg($rutaTmp);
-    } elseif ($extension === 'png') {
-        $src = imagecreatefrompng($rutaTmp);
-    } elseif ($extension === 'webp') {
-        $src = imagecreatefromwebp($rutaTmp);
-    } else {
-        $src = imagecreatefromjpeg($rutaTmp);
-    }
-
-    $anchoOrig  = imagesx($src);
-    $altoOrig   = imagesy($src);
-    $maxSize    = 600;
-    $ratio      = min($maxSize / $anchoOrig, $maxSize / $altoOrig, 1);
-    $nuevoAncho = (int)($anchoOrig * $ratio);
-    $nuevoAlto  = (int)($altoOrig  * $ratio);
-
-    $dst    = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
-    $blanco = imagecolorallocate($dst, 255, 255, 255);
-    imagefill($dst, 0, 0, $blanco);
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $anchoOrig, $altoOrig);
-
-    imagejpeg($dst, $rutaDestino . $nombreArchivo, 75);
-    imagedestroy($src);
-    imagedestroy($dst);
-
-    $data['imagen'] = 'productos/' . $nombreArchivo;
+    $uploadedFile = Cloudinary::upload($request->file('imagen')->getRealPath(), [
+        'folder' => 'productos',
+        'transformation' => [
+            'width' => 600, 'height' => 600,
+            'crop' => 'limit', 'quality' => 75
+        ]
+    ]);
+    $data['imagen'] = $uploadedFile->getSecurePath();
 }
 
         Producto::create($data);
@@ -373,44 +343,20 @@ public function productosIndex(Request $request)
         $data['activo'] = $request->has('activo') ? 1 : 0;
 
         if ($request->hasFile('imagen')) {
-    $imagen        = $request->file('imagen');
-    $nombreArchivo = uniqid() . '.jpg';
-    $rutaDestino   = storage_path('app/public/productos/');
-
-    if (!file_exists($rutaDestino)) {
-        mkdir($rutaDestino, 0755, true);
+    // Eliminar imagen anterior de Cloudinary si existe
+    if ($producto->imagen && str_contains($producto->imagen, 'cloudinary')) {
+        $publicId = pathinfo(parse_url($producto->imagen, PHP_URL_PATH), PATHINFO_FILENAME);
+        Cloudinary::destroy('productos/' . $publicId);
     }
 
-    $extension = strtolower($imagen->getClientOriginalExtension());
-    $rutaTmp   = $imagen->getRealPath();
-
-    if (in_array($extension, ['jpg', 'jpeg'])) {
-        $src = imagecreatefromjpeg($rutaTmp);
-    } elseif ($extension === 'png') {
-        $src = imagecreatefrompng($rutaTmp);
-    } elseif ($extension === 'webp') {
-        $src = imagecreatefromwebp($rutaTmp);
-    } else {
-        $src = imagecreatefromjpeg($rutaTmp);
-    }
-
-    $anchoOrig  = imagesx($src);
-    $altoOrig   = imagesy($src);
-    $maxSize    = 600;
-    $ratio      = min($maxSize / $anchoOrig, $maxSize / $altoOrig, 1);
-    $nuevoAncho = (int)($anchoOrig * $ratio);
-    $nuevoAlto  = (int)($altoOrig  * $ratio);
-
-    $dst    = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
-    $blanco = imagecolorallocate($dst, 255, 255, 255);
-    imagefill($dst, 0, 0, $blanco);
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $anchoOrig, $altoOrig);
-
-    imagejpeg($dst, $rutaDestino . $nombreArchivo, 75);
-    imagedestroy($src);
-    imagedestroy($dst);
-
-    $data['imagen'] = 'productos/' . $nombreArchivo;
+    $uploadedFile = Cloudinary::upload($request->file('imagen')->getRealPath(), [
+        'folder' => 'productos',
+        'transformation' => [
+            'width' => 600, 'height' => 600,
+            'crop' => 'limit', 'quality' => 75
+        ]
+    ]);
+    $data['imagen'] = $uploadedFile->getSecurePath();
 }
 
         $producto->update($data);
@@ -426,8 +372,13 @@ public function productosIndex(Request $request)
     {
         // Eliminar imagen si existe
         if ($producto->imagen) {
-            \Storage::disk('public')->delete($producto->imagen);
-        }
+    if (str_contains($producto->imagen, 'cloudinary')) {
+        $publicId = pathinfo(parse_url($producto->imagen, PHP_URL_PATH), PATHINFO_FILENAME);
+        Cloudinary::destroy('productos/' . $publicId);
+    } else {
+        \Storage::disk('public')->delete($producto->imagen);
+    }
+}
 
         $producto->delete();
 

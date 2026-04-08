@@ -131,7 +131,8 @@
                             <label for="imagen" class="form-label">Imagen</label>
                             @if($producto->imagen)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $producto->imagen) }}" 
+                                    // DESPUÉS:
+                                        <img src="{{ $producto->imagen }}"
                                          alt="{{ $producto->nombre }}" 
                                          class="img-thumbnail" 
                                          style="width: 100px; height: 100px; object-fit: cover;">

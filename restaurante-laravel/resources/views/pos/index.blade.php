@@ -201,7 +201,8 @@
                             <div class="card producto-item h-100 {{ $prod->stock <= 0 ? 'producto-sin-stock' : '' }}"
                                  onclick="agregarProducto({{ $prod->id }}, '{{ addslashes($prod->nombre) }}', {{ $prod->precio }})">
                                 @if($prod->imagen)
-                                    <img src="{{ asset('storage/'.$prod->imagen) }}"
+                                    // DESPUÉS:
+                                    <img src="{{ $prod->imagen }}"
                                          class="card-img-top" alt="{{ $prod->nombre }}"
                                          style="height:90px;object-fit:cover">
                                 @else
