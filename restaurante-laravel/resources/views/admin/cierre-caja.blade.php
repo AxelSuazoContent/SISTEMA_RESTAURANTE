@@ -29,12 +29,7 @@
     <button onclick="window.print()" class="btn btn-outline-primary">
         <i class="bi bi-printer"></i> Imprimir
     </button>
-    <button onclick="abrirOperaciones()" class="btn btn-success">
-        <i class="bi bi-unlock"></i> Abrir Operaciones
-    </button>
-    <button onclick="cerrarOperaciones()" class="btn btn-danger">
-        <i class="bi bi-lock"></i> Cerrar Operaciones
-    </button>
+    
 </div>
 </div>
 
