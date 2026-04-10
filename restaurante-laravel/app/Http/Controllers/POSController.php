@@ -285,6 +285,7 @@ return view('pos.index', compact(
             return response()->json([
                 'success' => false,
                 'message' => 'Este pedido ya ha sido pagado.',
+                
             ], 422);
         }
 
@@ -292,6 +293,7 @@ return view('pos.index', compact(
             'metodo_pago' => 'required|in:efectivo,tarjeta,transferencia,otro',
             'monto_recibido' => 'required|numeric|min:' . $pedido->total,
             'referencia' => 'nullable|string|max:255',
+            'cliente_rtn' => 'nullable|string|digits:14',
         ]);
 
         if ($request->metodo_pago === 'transferencia' && empty($request->referencia)) {

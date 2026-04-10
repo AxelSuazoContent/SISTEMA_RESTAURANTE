@@ -429,7 +429,13 @@
         <span class="text-muted fw-normal" style="font-size:0.8rem;">(opcional)</span>
     </label>
     <input type="text" class="form-control" id="clienteRTN"
-           placeholder="RTN empresa o persona jurídica">
+           placeholder="Ej: 08011999123456"
+           inputmode="numeric"
+           maxlength="14"
+           oninput="this.value = this.value.replace(/\D/g, '').slice(0, 14)">
+    <div id="rtnError" class="text-danger small mt-1 d-none">
+        El RTN debe tener exactamente 14 dígitos.
+    </div>
 </div>
             </div>
             <div class="modal-footer">
@@ -841,7 +847,7 @@ function procesarPago() {
         mostrarToast('El monto recibido es menor al total', 'warning');
         return;
     }
-
+    
     // Código de transacción obligatorio para transferencias
     if (metodo === 'transferencia' && !referencia) {
         document.getElementById('referenciaError').classList.remove('d-none');
@@ -849,6 +855,13 @@ function procesarPago() {
         return;
     }
     document.getElementById('referenciaError').classList.add('d-none');
+// Validar RTN si fue ingresado
+if (clienteRTN && !/^\d{14}$/.test(clienteRTN)) {
+    document.getElementById('rtnError').classList.remove('d-none');
+    document.getElementById('clienteRTN').focus();
+    return;
+}
+document.getElementById('rtnError').classList.add('d-none');
 
     fetch(`/pos/pedido/${pedidoActual.id}/pagar`, {
         method: 'POST',
