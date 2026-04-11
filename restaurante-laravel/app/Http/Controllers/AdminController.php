@@ -15,8 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Models\Reservacion;
-
-
+use App\Exports\ProductosExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\VentasExport;
 class AdminController extends Controller
 {
     /**
@@ -775,7 +776,25 @@ public function abrirOperaciones()
     return response()->json(['success' => true]);
 }
 
+public function productosExport()
+{
+    return Excel::download(new ProductosExport, 'productos_' . now()->format('Y-m-d') . '.xlsx');
+}
 
+public function reporteVentasExport(Request $request)
+{
+    $fechaInicio = $request->filled('fecha_inicio')
+        ? Carbon::parse($request->fecha_inicio)->startOfDay()
+        : Carbon::now()->startOfMonth()->startOfDay();
+
+    $fechaFin = $request->filled('fecha_fin')
+        ? Carbon::parse($request->fecha_fin)->endOfDay()
+        : Carbon::now()->endOfDay();
+
+    $nombre = 'reporte_ventas_' . $fechaInicio->format('Y-m-d') . '_al_' . $fechaFin->format('Y-m-d') . '.xlsx';
+
+    return Excel::download(new VentasExport($fechaInicio, $fechaFin), $nombre);
+}
 }
 
 

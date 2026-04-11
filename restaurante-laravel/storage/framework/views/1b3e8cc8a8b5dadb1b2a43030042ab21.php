@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Configuración de Factura'); ?>
 
 <?php $__env->startSection('content'); ?>

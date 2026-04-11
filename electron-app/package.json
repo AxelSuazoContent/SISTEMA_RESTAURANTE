@@ -1,0 +1,38 @@
+{
+  "name": "sistema-restaurante",
+  "version": "1.0.0",
+  "description": "Sistema de Restaurante",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build --win"
+  },
+  "build": {
+    "appId": "com.restaurante.sistema",
+    "productName": "Sistema Restaurante",
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "php",
+        "to": "php"
+      },
+      {
+        "from": "../restaurante-laravel",
+        "to": "restaurante-laravel"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12"
+  }
+}

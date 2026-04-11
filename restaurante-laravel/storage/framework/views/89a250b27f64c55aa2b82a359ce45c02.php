@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Punto de Venta'); ?>
 
 <?php $__env->startSection('styles'); ?>

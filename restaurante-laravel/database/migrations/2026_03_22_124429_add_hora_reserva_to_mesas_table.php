@@ -11,9 +11,11 @@ return new class extends Migration
      */
 public function up(): void
 {
-    Schema::table('mesas', function (Blueprint $table) {
-        $table->time('hora_reserva')->nullable()->after('estado');
-    });
+    if (!Schema::hasColumn('mesas', 'hora_reserva')) {
+        Schema::table('mesas', function (Blueprint $table) {
+            $table->time('hora_reserva')->nullable()->after('estado');
+        });
+    }
 }
 
 public function down(): void

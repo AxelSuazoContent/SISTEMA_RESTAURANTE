@@ -36,9 +36,14 @@
             {{ $fechaInicio->format('d/m/Y') }} — {{ $fechaFin->format('d/m/Y') }}
         </small>
     </div>
-    <button onclick="window.print()" class="btn btn-outline-primary no-print">
-        <i class="bi bi-printer"></i> Imprimir / PDF
-    </button>
+    <div class="d-flex gap-2 no-print">
+        <a href="{{ route('admin.reportes.ventas.export', request()->query()) }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="bi bi-printer"></i> Imprimir / PDF
+        </button>
+    </div>
 </div>
 
 {{-- Filtros --}}

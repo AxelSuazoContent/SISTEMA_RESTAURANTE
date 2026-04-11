@@ -60,6 +60,13 @@ $rol = auth()->user()->rol;
         <i class="bi bi-cash-stack"></i> Caja
     </a>
 </li>
+
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"
+       href="{{ route('admin.backups.index') }}">
+        <i class="bi bi-database"></i> Backups
+    </a>
+</li>
             
             
                 <li class="nav-item mt-3">

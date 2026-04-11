@@ -1,0 +1,7 @@
+electron-app/dist/
+electron-app/node_modules/
+restaurante-laravel/vendor/
+restaurante-laravel/node_modules/
+restaurante-laravel/storage/logs/
+restaurante-laravel/storage/app/backups/
+restaurante-laravel/.env

@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Cierre de Caja'); ?>
 
 <?php $__env->startSection('styles'); ?>

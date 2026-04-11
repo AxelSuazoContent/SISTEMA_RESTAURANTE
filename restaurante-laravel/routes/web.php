@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+// Licencia
+Route::get('/licencia', [App\Http\Controllers\LicenciaController::class, 'index'])->name('licencia.index');
+Route::post('/licencia/activar', [App\Http\Controllers\LicenciaController::class, 'activar'])->name('licencia.activar');
 // Landing page pública
 Route::get('/reservar', [App\Http\Controllers\LandingController::class, 'index'])->name('landing.reservar');
 Route::post('/reservar', [App\Http\Controllers\LandingController::class, 'store'])->name('landing.store');
@@ -81,7 +84,8 @@ Route::middleware('can:admin')->group(function () {
     Route::put('/categorias/{categoria}', [AdminController::class, 'categoriasUpdate'])->name('categorias.update');
     Route::delete('/categorias/{categoria}', [AdminController::class, 'categoriasDestroy'])->name('categorias.destroy');
 
-    // Productos
+// Productos
+    Route::get('/productos/export', [AdminController::class, 'productosExport'])->name('productos.export');
     Route::get('/productos', [AdminController::class, 'productosIndex'])->name('productos.index');
     Route::get('/productos/crear', [AdminController::class, 'productosCreate'])->name('productos.create');
     Route::post('/productos', [AdminController::class, 'productosStore'])->name('productos.store');
@@ -89,10 +93,19 @@ Route::middleware('can:admin')->group(function () {
     Route::put('/productos/{producto}', [AdminController::class, 'productosUpdate'])->name('productos.update');
     Route::delete('/productos/{producto}', [AdminController::class, 'productosDestroy'])->name('productos.destroy');
 
+    
     // Reservaciones
     Route::patch('/mesas/{mesa}/reservar', [AdminController::class, 'mesasCambiarEstado'])->name('mesas.reservar');
 
+    // Backups
+    Route::get('/backups', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('backups.index');
+    Route::post('/backups/crear', [\App\Http\Controllers\Admin\BackupController::class, 'crear'])->name('backups.crear');
+    Route::get('/backups/descargar/{nombre}', [\App\Http\Controllers\Admin\BackupController::class, 'descargar'])->name('backups.descargar');
+    Route::post('/backups/restaurar', [\App\Http\Controllers\Admin\BackupController::class, 'restaurar'])->name('backups.restaurar');
+    Route::delete('/backups/{nombre}', [\App\Http\Controllers\Admin\BackupController::class, 'eliminar'])->name('backups.eliminar');
+
     // Reportes
+    Route::get('/reportes/ventas/export', [AdminController::class, 'reporteVentasExport'])->name('reportes.ventas.export');
     Route::get('/reportes/ventas', [AdminController::class, 'reporteVentas'])->name('reportes.ventas');
 
     // Facturas — solo índice para admin
@@ -131,6 +144,7 @@ Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {
         Route::post('/mesa/{mesa}/ocupar', [POSController::class, 'ocuparMesa'])->name('mesa.ocupar');
         Route::post('/mesa/{mesa}/estado', [POSController::class, 'cambiarEstadoMesa'])->name('mesa.estado');
         Route::get('/mesa/{mesa}/pedido-activo', [POSController::class, 'pedidoActivoPorMesa'])->name('mesa.pedido.activo');
+        
     });
 });
 
@@ -152,3 +166,4 @@ Route::middleware(['auth'])->prefix('cocina')->name('cocina.')->group(function (
         Route::get('/check-nuevos', [CocinaController::class, 'checkNuevosPedidos'])->name('check.nuevos');
     });
 });
+

@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Reporte de Ventas'); ?>
 
 <?php $__env->startSection('styles'); ?>
@@ -37,9 +35,14 @@
 
         </small>
     </div>
-    <button onclick="window.print()" class="btn btn-outline-primary no-print">
-        <i class="bi bi-printer"></i> Imprimir / PDF
-    </button>
+    <div class="d-flex gap-2 no-print">
+        <a href="<?php echo e(route('admin.reportes.ventas.export', request()->query())); ?>" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="bi bi-printer"></i> Imprimir / PDF
+        </button>
+    </div>
 </div>
 
 
