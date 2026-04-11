@@ -1,0 +1,42 @@
+[33maf9a8af[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update cierre-caja.blade.php
+[33m231e7e2[m eea
+[33mf1394e1[m fix: HorarioController usa BD, RTN solo en tarjeta
+[33mdc5ca38[m fix: reemplazar config horario por Configuracion::get
+[33m7107501[m fix: carpeta Landing a minusculas
+[33m5b8b673[m fix: Configuracion maneja tabla inexistente
+[33mbe80cf4[m aa
+[33m3da4b18[m fix: archivo Imprimir a minusculas
+[33mef5ca55[m fix: archivo Config-factura a minusculas
+[33mfb6197b[m fix: carpeta Facturas a minusculas
+[33m6a102e6[m Update index.blade.php
+[33m6beb074[m aa
+[33m91e4709[m add
+[33m468cf6a[m Update index.blade.php
+[33m24625e9[m Update AppServiceProvider.php
+[33m94640fe[m add
+[33m6751dc2[m Update dockerfile
+[33m76da095[m add
+[33m11f0254[m add
+[33m15d3a9e[m aggg
+[33mce05150[m add
+[33m3c704b0[m Update dockerfile
+[33m6e12aa1[m Update dockerfile
+[33m4acd7ea[m Update 2026_03_22_124429_add_hora_reserva_to_mesas_table.php
+[33mb6fdda7[m Update dockerfile
+[33m0404d7d[m Delete example.env
+[33mfe4a0e4[m Update dockerfile
+[33me832d5e[m Update dockerfile
+[33md5ab8a9[m Update dockerfile
+[33mb0f1d6c[m Update dockerfile
+[33m57266a4[m Update dockerfile
+[33mecc0ff2[m Update dockerfile
+[33m4a2811e[m Update dockerfile
+[33m7b1aa44[m add dockerfile
+[33m03ccffd[m add and fix
+[33m213ff48[m fix editar ususario
+[33m054d73f[m Fix and Add
+[33m295e95f[m Delete .env.example
+[33m070a76e[m add se agregan nuevas funciones
+[33m8dd6315[m Fix
+[33mbf3a615[m Delete 2026_03_27_112255_add_reserva_fields_to_mesas_table.php
+[33ma5b6770[m inicio limpio
