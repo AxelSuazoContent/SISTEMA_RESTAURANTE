@@ -110,9 +110,8 @@ Route::middleware('can:admin')->group(function () {
 
 // ==================== POS ====================
 Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {
-    // ✅ Dentro del grupo Route::middleware('can:admin')->group(...)
-Route::post('/horario', [\App\Http\Controllers\Admin\HorarioController::class, 'update'])
-    ->name('horario.update');
+    Route::post('/horario', [\App\Http\Controllers\Admin\HorarioController::class, 'update'])
+        ->name('horario.update');
     Route::get('/', [POSController::class, 'index'])
         ->name('index')->middleware('can:recepcionista');
 
