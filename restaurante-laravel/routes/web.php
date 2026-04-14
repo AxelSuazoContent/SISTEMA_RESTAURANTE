@@ -100,16 +100,19 @@ Route::middleware('can:admin')->group(function () {
 
     // Cierre de caja
     Route::get('/cierre-caja', [AdminController::class, 'cierreCaja'])->name('cierre.caja');
-
+    
     // Configuración de factura
     Route::get('/config-factura', [AdminController::class, 'configFacturaIndex'])->name('config.factura');
     Route::post('/config-factura', [AdminController::class, 'configFacturaUpdate'])->name('config.factura.update');
 });
-});
-Route::post('admin/horario', [\App\Http\Controllers\Admin\HorarioController::class, 'update'])->name('admin.horario.update');
+
 
 // ==================== POS ====================
 Route::middleware(['auth'])->prefix('pos')->name('pos.')->group(function () {
+
+   
+Route::post('/horario', [\App\Http\Controllers\Admin\HorarioController::class, 'update'])
+    ->name('horario.update');
 
     Route::get('/', [POSController::class, 'index'])
         ->name('index')->middleware('can:recepcionista');

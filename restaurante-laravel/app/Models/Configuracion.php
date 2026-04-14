@@ -15,11 +15,14 @@ class Configuracion extends Model {
         }
     }
 
-    public static function set(string $clave, string $valor): void {
-        try {
-            self::updateOrCreate(['clave' => $clave], ['valor' => $valor]);
-        } catch (\Exception $e) {
-            // tabla aún no existe
-        }
+   public static function set(string $clave, string $valor): void {
+    try {
+        self::updateOrCreate(['clave' => $clave], ['valor' => $valor]);
+    } catch (\Exception $e) {
+        \Log::error("Configuracion::set error - clave: $clave - " . $e->getMessage());
+        throw $e; // ← lanza el error para verlo
     }
+}
+
+    
 }
