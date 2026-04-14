@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 class Configuracion extends Model {
     protected $fillable = ['clave', 'valor'];
-
+     protected $table = 'configuraciones'; 
     public static function get(string $clave, string $default = ''): string {
         try {
             return self::where('clave', $clave)->value('valor') ?? $default;
