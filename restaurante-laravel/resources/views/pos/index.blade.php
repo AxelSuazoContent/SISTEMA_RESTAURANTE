@@ -449,7 +449,6 @@
 </div>
 
 @endsection
-
 @section('scripts')
 <script>
 const CAJA_CERRADA   = {{ $cierreCaja ? 'true' : 'false' }};
@@ -502,20 +501,14 @@ document.querySelectorAll('.mesa-item').forEach(el => {
 });
 
 function seleccionarMesa(id, numero, estado) {
-    if (CAJA_CERRADA) {
-        mostrarToast('Las operaciones están cerradas.', 'warning');
-        return;
-    }
+    if (CAJA_CERRADA) { mostrarToast('Las operaciones están cerradas.', 'warning'); return; }
     if (estado === 'ocupada') {
         mesaModal = { id, numero };
         document.getElementById('modalMesaTitulo').textContent = `Mesa ${numero}`;
         new bootstrap.Modal(document.getElementById('modalLiberarMesa')).show();
         return;
     }
-    if (estado === 'inactiva') {
-        mostrarToast('Esta mesa está inactiva y no puede usarse', 'warning');
-        return;
-    }
+    if (estado === 'inactiva') { mostrarToast('Esta mesa está inactiva y no puede usarse', 'warning'); return; }
     deseleccionarMesa();
     mesaSeleccionada = id;
     document.getElementById('infoMesa').textContent = 'Mesa ' + numero;
@@ -537,16 +530,10 @@ document.getElementById('btnVerPedidoMesa').addEventListener('click', function (
 
 // ── Ticket ───────────────────────────────────────────────────────────────────
 function agregarProducto(id, nombre, precio) {
-    if (CAJA_CERRADA) {
-        mostrarToast('Las operaciones están cerradas.', 'warning');
-        return;
-    }
+    if (CAJA_CERRADA) { mostrarToast('Las operaciones están cerradas.', 'warning'); return; }
     const existente = ticket.find(i => i.id === id);
-    if (existente) {
-        existente.cantidad++;
-    } else {
-        ticket.push({ id, nombre, precio, cantidad: 1, notas: '' });
-    }
+    if (existente) { existente.cantidad++; }
+    else { ticket.push({ id, nombre, precio, cantidad: 1, notas: '' }); }
     actualizarTicket();
 }
 
@@ -568,13 +555,13 @@ function actualizarNota(index, nota) {
 function actualizarTicket() {
     const container = document.getElementById('ticketItems');
     const vacio     = document.getElementById('ticketVacio');
-    const vacio2    = ticket.length === 0;
+    const estaVacio = ticket.length === 0;
 
-    vacio.classList.toggle('d-none', !vacio2);
-    document.getElementById('btnEnviar').disabled   = vacio2 || CAJA_CERRADA;
-    document.getElementById('btnCancelar').disabled = vacio2;
+    vacio.classList.toggle('d-none', !estaVacio);
+    document.getElementById('btnEnviar').disabled   = estaVacio || CAJA_CERRADA;
+    document.getElementById('btnCancelar').disabled = estaVacio;
 
-    if (!vacio2) {
+    if (!estaVacio) {
         container.innerHTML = ticket.map((item, i) => `
             <div class="ticket-item">
                 <div class="d-flex justify-content-between align-items-start">
@@ -603,14 +590,13 @@ function actualizarTicket() {
     } else {
         container.innerHTML = '';
     }
-
     calcularTotales();
 }
 
 function calcularTotales() {
     const sub = ticket.reduce((s, i) => s + i.precio * i.cantidad, 0);
-document.getElementById('subtotal').textContent = SIMBOLO_MONEDA + sub.toFixed(2);
-document.getElementById('total').textContent    = SIMBOLO_MONEDA + sub.toFixed(2);
+    document.getElementById('subtotal').textContent = SIMBOLO_MONEDA + sub.toFixed(2);
+    document.getElementById('total').textContent    = SIMBOLO_MONEDA + sub.toFixed(2);
 }
 
 function cancelarTicket() {
@@ -624,51 +610,35 @@ function cancelarTicket() {
 
 // ── Enviar pedido ────────────────────────────────────────────────────────────
 function enviarPedido() {
-    if (CAJA_CERRADA) {
-        mostrarToast('Las operaciones están cerradas. No se pueden enviar pedidos.', 'warning');
-        return;
-    }
+    if (CAJA_CERRADA) { mostrarToast('Las operaciones están cerradas.', 'warning'); return; }
 
     const tipo = document.querySelector('input[name="tipoPedido"]:checked').value;
+    if (tipo === 'mesa' && !mesaSeleccionada) { mostrarToast('Selecciona una mesa primero', 'warning'); return; }
 
-    if (tipo === 'mesa' && !mesaSeleccionada) {
-        mostrarToast('Selecciona una mesa primero', 'warning');
-        return;
+    if (tipo !== 'mesa') {
+        const tel = document.getElementById('clienteTelefono').value;
+        if (tel && (!/^\d+$/.test(tel) || tel.length !== 8)) {
+            mostrarToast('El teléfono debe tener exactamente 8 dígitos numéricos', 'warning');
+            return;
+        }
     }
-    // ← aquí
-if (tipo !== 'mesa') {
-    const tel = document.getElementById('clienteTelefono').value;
-    if (tel && (!/^\d+$/.test(tel) || tel.length !== 8)) {
-        mostrarToast('El teléfono debe tener exactamente 8 dígitos numéricos', 'warning');
-        return;
-    }
-}
 
-
-    if (ticket.length === 0) {
-        mostrarToast('Agrega productos al ticket', 'warning');
-        return;
-    }
+    if (ticket.length === 0) { mostrarToast('Agrega productos al ticket', 'warning'); return; }
 
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.disabled = true;
     btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
 
-    const data = {
-        tipo,
-        mesa_id:          mesaSeleccionada,
-        cliente_nombre:   document.getElementById('clienteNombre')?.value  || '',
-        cliente_telefono: document.getElementById('clienteTelefono')?.value || '',
-        productos: ticket.map(i => ({ id: i.id, cantidad: i.cantidad, notas: i.notas }))
-    };
-
     fetch('{{ route("pos.pedido.crear") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({
+            tipo,
+            mesa_id:          mesaSeleccionada,
+            cliente_nombre:   document.getElementById('clienteNombre')?.value  || '',
+            cliente_telefono: document.getElementById('clienteTelefono')?.value || '',
+            productos: ticket.map(i => ({ id: i.id, cantidad: i.cantidad, notas: i.notas }))
+        })
     })
     .then(r => r.json())
     .then(res => {
@@ -680,9 +650,7 @@ if (tipo !== 'mesa') {
                 el.dataset.mesaEstado = 'ocupada';
             }
             mostrarToast('¡Pedido enviado correctamente!', 'success');
-            ticket = [];
-            mesaSeleccionada = null;
-            pedidoActual = null;
+            ticket = []; mesaSeleccionada = null; pedidoActual = null;
             actualizarTicket();
             document.getElementById('infoMesa').textContent = 'Sin mesa';
             setTimeout(() => location.reload(), 1200);
@@ -707,10 +675,7 @@ function verDetallePedido(id) {
     new bootstrap.Modal(document.getElementById('modalDetallePedido')).show();
     fetch(`/pos/pedido/${id}`)
         .then(r => r.json())
-        .then(data => {
-            pedidoActual = data.pedido;
-            renderDetallePedido(data.pedido);
-        })
+        .then(data => { pedidoActual = data.pedido; renderDetallePedido(data.pedido); })
         .catch(() => {
             document.getElementById('modalDetalleCuerpo').innerHTML =
                 '<p class="text-danger text-center">Error al cargar el pedido.</p>';
@@ -726,10 +691,8 @@ function verDetallePedidoPorMesa(mesaId) {
     fetch(`/pos/mesa/${mesaId}/pedido-activo`)
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                pedidoActual = data.pedido;
-                renderDetallePedido(data.pedido);
-            } else {
+            if (data.success) { pedidoActual = data.pedido; renderDetallePedido(data.pedido); }
+            else {
                 document.getElementById('modalDetalleCuerpo').innerHTML =
                     '<p class="text-warning text-center">No se encontró un pedido activo para esta mesa.</p>';
             }
@@ -745,9 +708,8 @@ function renderDetallePedido(p) {
         <tr>
             <td>${d.producto.nombre}</td>
             <td class="text-center">${d.cantidad}</td>
-<td class="text-end">${SIMBOLO_MONEDA}${parseFloat(d.precio_unitario).toFixed(2)}</td>
-<td class="text-end fw-bold">${SIMBOLO_MONEDA}${(d.cantidad * d.precio_unitario).toFixed(2)}</td>
-
+            <td class="text-end">${SIMBOLO_MONEDA}${parseFloat(d.precio_unitario).toFixed(2)}</td>
+            <td class="text-end fw-bold">${SIMBOLO_MONEDA}${(d.cantidad * d.precio_unitario).toFixed(2)}</td>
         </tr>
         ${d.notas ? `<tr><td colspan="4"><small class="text-muted">📝 ${d.notas}</small></td></tr>` : ''}
     `).join('');
@@ -798,9 +760,17 @@ function renderDetallePedido(p) {
 }
 
 // ── Cobrar ───────────────────────────────────────────────────────────────────
+function obtenerTotalNumerico() {
+    return parseFloat(
+        document.getElementById('totalCobrar').textContent
+            .replace(SIMBOLO_MONEDA, '')
+            .trim()
+    ) || 0;
+}
+
 function abrirModalCobrar(pedidoId, total) {
     bootstrap.Modal.getInstance(document.getElementById('modalDetallePedido'))?.hide();
-    pedidoActual = { id: pedidoId, total };
+    pedidoActual = { id: pedidoId, total: parseFloat(total) };
     document.getElementById('totalCobrar').textContent = SIMBOLO_MONEDA + parseFloat(total).toFixed(2);
     document.getElementById('montoRecibido').value     = '';
     document.getElementById('cambio').textContent      = SIMBOLO_MONEDA + '0.00';
@@ -830,35 +800,17 @@ document.getElementById('metodoPago').addEventListener('change', function () {
 });
 
 document.getElementById('montoRecibido').addEventListener('input', function () {
-    const total = parseFloat(
-    document.getElementById('totalCobrar').textContent
-        .replace(SIMBOLO_MONEDA, '')
-        .trim()
-);
+    const total    = obtenerTotalNumerico();
     const recibido = parseFloat(this.value) || 0;
     const cambio   = recibido - total;
     document.getElementById('cambio').textContent = SIMBOLO_MONEDA + (cambio > 0 ? cambio.toFixed(2) : '0.00');
 });
 
 function procesarPago() {
-     if (!pedidoActual) return;
-
-    const metodo   = document.getElementById('metodoPago').value;
-    const totalRaw = document.getElementById('totalCobrar').textContent;
-    const total = parseFloat(
-    document.getElementById('totalCobrar').textContent
-        .replace(SIMBOLO_MONEDA, '')
-        .trim()
-);
-    
-    // ← AGREGA ESTO TEMPORALMENTE
-    console.log('totalRaw:', totalRaw);
-    console.log('total parseado:', total);
-    console.log('pedidoActual:', pedidoActual);
-    console.log('metodo:', metodo);
+    if (!pedidoActual) return;
 
     const metodo     = document.getElementById('metodoPago').value;
-    const total      = parseFloat(document.getElementById('totalCobrar').textContent.replace('$',''));
+    const total      = pedidoActual.total; // ← usamos el valor numérico guardado, sin parsear texto
     const recibido   = parseFloat(document.getElementById('montoRecibido').value) || 0;
     const referencia = document.getElementById('referenciaPago').value.trim();
     const clienteRTN = document.getElementById('clienteRTN').value.trim();
@@ -867,21 +819,20 @@ function procesarPago() {
         mostrarToast('El monto recibido es menor al total', 'warning');
         return;
     }
-    
-    // Código de transacción obligatorio para transferencias
+
     if (metodo === 'transferencia' && !referencia) {
         document.getElementById('referenciaError').classList.remove('d-none');
         document.getElementById('referenciaPago').focus();
         return;
     }
     document.getElementById('referenciaError').classList.add('d-none');
-// Validar RTN si fue ingresado
-if (clienteRTN && !/^\d{14}$/.test(clienteRTN)) {
-    document.getElementById('rtnError').classList.remove('d-none');
-    document.getElementById('clienteRTN').focus();
-    return;
-}
-document.getElementById('rtnError').classList.add('d-none');
+
+    if (clienteRTN && !/^\d{14}$/.test(clienteRTN)) {
+        document.getElementById('rtnError').classList.remove('d-none');
+        document.getElementById('clienteRTN').focus();
+        return;
+    }
+    document.getElementById('rtnError').classList.add('d-none');
 
     fetch(`/pos/pedido/${pedidoActual.id}/pagar`, {
         method: 'POST',
@@ -892,8 +843,8 @@ document.getElementById('rtnError').classList.add('d-none');
         body: JSON.stringify({
             metodo_pago:    metodo,
             monto_recibido: metodo === 'efectivo' ? recibido : total,
-            referencia:     document.getElementById('referenciaPago').value.trim(),
-            cliente_rtn:    document.getElementById('clienteRTN').value.trim()
+            referencia:     referencia,
+            cliente_rtn:    clienteRTN
         })
     })
     .then(r => r.json())
@@ -901,6 +852,7 @@ document.getElementById('rtnError').classList.add('d-none');
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalCobrar'))?.hide();
             mostrarToast('¡Pago procesado correctamente!', 'success');
+
             fetch(`/pos/pedido/${pedidoActual.id}/factura`, {
                 method: 'POST',
                 headers: {
@@ -913,8 +865,11 @@ document.getElementById('rtnError').classList.add('d-none');
                 if (f.success) {
                     mostrarToast(`Factura ${f.numero} generada`, 'success');
                     setTimeout(() => window.open(f.imprimir_url, '_blank'), 800);
+                } else {
+                    mostrarToast('Pago ok pero error en factura: ' + f.message, 'warning');
                 }
             });
+
             setTimeout(() => location.reload(), 2000);
         } else {
             mostrarToast(data.message || 'Error al procesar el pago', 'danger');
@@ -951,35 +906,22 @@ function cancelarPedido(id) {
 // ── Reservaciones ────────────────────────────────────────────────────────────
 function verReservaciones(mesaId) {
     const lista = RESERVACIONES[mesaId] || [];
-    let html = '<ul class="list-group list-group-flush">';
-
-    lista.forEach(r => {
-        const hora = r.hora.substring(0, 5);
-        html += `
+    let html = lista.length === 0
+        ? '<p class="text-center text-muted py-4">No hay reservaciones vigentes.</p>'
+        : '<ul class="list-group list-group-flush">' + lista.map(r => `
             <li class="list-group-item py-3">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <strong>${r.cliente_nombre || 'Sin nombre'}</strong>
-                        ${r.cliente_telefono
-                            ? `<br><small class="text-muted"><i class="bi bi-telephone"></i> ${r.cliente_telefono}</small>`
-                            : ''}
-                        ${r.notas
-                            ? `<br><small class="text-muted"><i class="bi bi-chat-left-text"></i> ${r.notas}</small>`
-                            : ''}
+                        ${r.cliente_telefono ? `<br><small class="text-muted"><i class="bi bi-telephone"></i> ${r.cliente_telefono}</small>` : ''}
+                        ${r.notas ? `<br><small class="text-muted"><i class="bi bi-chat-left-text"></i> ${r.notas}</small>` : ''}
                     </div>
                     <span class="badge bg-warning text-dark ms-2 text-end">
                         <i class="bi bi-calendar"></i> ${r.fecha}<br>
-                        <i class="bi bi-clock"></i> ${hora}
+                        <i class="bi bi-clock"></i> ${r.hora.substring(0,5)}
                     </span>
                 </div>
-            </li>`;
-    });
-
-    html += '</ul>';
-
-    if (lista.length === 0) {
-        html = '<p class="text-center text-muted py-4">No hay reservaciones vigentes.</p>';
-    }
+            </li>`).join('') + '</ul>';
 
     document.getElementById('modalReservacionesCuerpo').innerHTML = html;
     new bootstrap.Modal(document.getElementById('modalReservaciones')).show();
