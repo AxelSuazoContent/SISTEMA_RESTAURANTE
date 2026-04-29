@@ -790,15 +790,21 @@ public function configFacturaUpdate(Request $request)
         'nombre_negocio'       => 'required|string|max:255',
         'rtn'                  => 'required|digits:14',
         'direccion'            => 'required|string|max:255',
-        'telefono'             => 'required|digits:8',
+        'telefono'             => 'required|string|max:15',
         'cai'                  => 'required|string|max:50',
         'rango_desde'          => 'required|string|max:25',
         'rango_hasta'          => 'required|string|max:25',
         'fecha_limite_emision' => 'required|date',
+        'moneda'               => 'required|in:HNL,USD',  // ← NUEVO
     ]);
 
+    // Símbolo automático según moneda
+    $simbolo = $request->moneda === 'HNL' ? 'L.' : '$';
+
     $config = ConfigFactura::obtener();
-    $config->update($request->all());
+    $config->update(array_merge($request->all(), [
+        'simbolo_moneda' => $simbolo,  // ← NUEVO
+    ]));
 
     return back()->with('success', 'Configuración actualizada correctamente.');
 }

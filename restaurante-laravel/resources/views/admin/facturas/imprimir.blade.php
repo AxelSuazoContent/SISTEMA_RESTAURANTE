@@ -97,8 +97,9 @@
                 <tr>
                     <td>{{ $detalle->producto->nombre }}</td>
                     <td class="cant" style="text-align:center">{{ $detalle->cantidad }}</td>
-                    <td class="precio">${{ number_format($detalle->precio_unitario, 2) }}</td>
-                    <td>${{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}</td>
+                    <td class="precio">{{ $config->simbolo_moneda }}{{ number_format($detalle->precio_unitario, 2) }}</td>
+                    <td>{{ $config->simbolo_moneda }}{{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}</td>
+
                 </tr>
                 @if($detalle->notas)
                 <tr>
@@ -123,19 +124,19 @@
     <table>
         <tr>
             <td>Subtotal exento</td>
-            <td>L. 0.00</td>
+            <td>{{ $config->simbolo_moneda }} 0.00</td>
         </tr>
         <tr>
             <td>Subtotal gravado 15%</td>
-            <td>L. {{ number_format($subtotalSinIsv, 2) }}</td>
+            <td>{{ $config->simbolo_moneda }} {{ number_format($subtotalSinIsv, 2) }}</td>
         </tr>
         <tr>
             <td>ISV 15%</td>
-            <td>L. {{ number_format($isv, 2) }}</td>
+            <td>{{ $config->simbolo_moneda }} {{ number_format($isv, 2) }}</td>
         </tr>
         <tr class="total-final">
             <td>TOTAL A PAGAR</td>
-            <td>L. {{ number_format($factura->total, 2) }}</td>
+            <td>{{ $config->simbolo_moneda }} {{ number_format($factura->total, 2) }}</td>
         </tr>
     </table>
 </div>

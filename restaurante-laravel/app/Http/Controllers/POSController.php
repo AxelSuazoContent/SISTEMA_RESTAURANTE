@@ -440,18 +440,36 @@ public function generarFactura(Request $request, Pedido $pedido)
         ]);
     }
 
+    // ── NUEVO: Generar número SAR con validación ──────────────────────
+    try {
+        $numeroData = Factura::generarNumero();
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ]);
+    }
+    // ─────────────────────────────────────────────────────────────────
+
     $pago = $pedido->pago;
 
+    // Calcular ISV 15% correctamente
+    $subtotalSinIsv = round($pedido->total / 1.15, 2);
+    $isv            = round($pedido->total - $subtotalSinIsv, 2);
+
     $factura = Factura::create([
-        'numero_factura' => Factura::generarNumero(),
+        'numero_factura' => $numeroData['numero_factura'],  // ← CAMBIADO
+        'correlativo'    => $numeroData['correlativo'],     // ← NUEVO
         'pedido_id'      => $pedido->id,
         'pago_id'        => $pago->id,
         'usuario_id'     => auth()->id(),
-        'subtotal'       => $pedido->total,
-        'impuesto'       => 0,
+        'subtotal'       => $subtotalSinIsv,                // ← CORREGIDO (antes era total)
+        'impuesto'       => $isv,                           // ← CORREGIDO (antes era 0)
         'total'          => $pedido->total,
         'metodo_pago'    => $pago->metodo_pago,
-        'cliente_nombre' => $pedido->mesa ? 'Mesa '.$pedido->mesa->numero : $pedido->cliente_nombre,
+        'cliente_nombre' => $pedido->mesa
+                                ? 'Mesa ' . $pedido->mesa->numero
+                                : $pedido->cliente_nombre,
     ]);
 
     return response()->json([

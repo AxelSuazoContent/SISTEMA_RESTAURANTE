@@ -51,6 +51,18 @@
                             minlength="8"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8)">
                     </div>
+                    <div class="mb-3">
+    <label class="form-label fw-bold">Moneda del Sistema</label>
+    <select name="moneda" class="form-select">
+        <option value="HNL" {{ $config->moneda === 'HNL' ? 'selected' : '' }}>
+            🇭🇳 Lempiras (L.) — Honduras
+        </option>
+        <option value="USD" {{ $config->moneda === 'USD' ? 'selected' : '' }}>
+            🇺🇸 Dólares ($) — EE.UU.
+        </option>
+    </select>
+    <small class="text-muted">Esta moneda se usará en todas las facturas del sistema.</small>
+</div>
                     </div>
 
                     <hr class="my-3">
@@ -58,7 +70,7 @@
                     <h6 class="fw-semibold mb-3 text-muted text-uppercase" style="font-size:11px;letter-spacing:.05em">
                         Datos SAR
                     </h6>
-
+                    
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">CAI (Código de Autorización de Impresión) *</label>
