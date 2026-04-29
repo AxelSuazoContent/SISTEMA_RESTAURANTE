@@ -441,22 +441,23 @@ public function generarFactura(Request $request, Pedido $pedido)
         ]);
     }
 
-    // ← NUEVO: verificar que el pago existe
+    // ← RECARGAR el pedido fresco con todas sus relaciones
+    $pedido->refresh();
+    $pedido->load(['pago', 'mesa']);
+
     $pago = $pedido->pago;
+
     if (!$pago) {
         return response()->json([
             'success' => false,
-            'message' => 'No se encontró el pago asociado al pedido.',
+            'message' => 'Error: No se encontró el pago. ID pedido: ' . $pedido->id . ' | Estado: ' . $pedido->estado,
         ]);
     }
 
     try {
         $numeroData = Factura::generarNumero();
     } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ]);
+        return response()->json(['success' => false, 'message' => $e->getMessage()]);
     }
 
     $subtotalSinIsv = round($pedido->total / 1.15, 2);
@@ -488,11 +489,10 @@ public function generarFactura(Request $request, Pedido $pedido)
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Error al generar la factura: ' . $e->getMessage(),
+            'message' => 'Error al crear factura: ' . $e->getMessage(),
         ]);
     }
 }
-
 public function pedidoActivoPorMesa(Mesa $mesa)
 {
     $pedido = Pedido::with(['detalles.producto', 'mesa', 'usuario', 'pago'])
