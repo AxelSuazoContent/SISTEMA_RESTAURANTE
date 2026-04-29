@@ -830,14 +830,32 @@ document.getElementById('metodoPago').addEventListener('change', function () {
 });
 
 document.getElementById('montoRecibido').addEventListener('input', function () {
-    const total = parseFloat(document.getElementById('totalCobrar').textContent.replace(/[^0-9.]/g, ''));
+    const total = parseFloat(
+    document.getElementById('totalCobrar').textContent
+        .replace(SIMBOLO_MONEDA, '')
+        .trim()
+);
     const recibido = parseFloat(this.value) || 0;
     const cambio   = recibido - total;
     document.getElementById('cambio').textContent = SIMBOLO_MONEDA + (cambio > 0 ? cambio.toFixed(2) : '0.00');
 });
 
 function procesarPago() {
-    if (!pedidoActual) return;
+     if (!pedidoActual) return;
+
+    const metodo   = document.getElementById('metodoPago').value;
+    const totalRaw = document.getElementById('totalCobrar').textContent;
+    const total = parseFloat(
+    document.getElementById('totalCobrar').textContent
+        .replace(SIMBOLO_MONEDA, '')
+        .trim()
+);
+    
+    // ← AGREGA ESTO TEMPORALMENTE
+    console.log('totalRaw:', totalRaw);
+    console.log('total parseado:', total);
+    console.log('pedidoActual:', pedidoActual);
+    console.log('metodo:', metodo);
 
     const metodo     = document.getElementById('metodoPago').value;
     const total      = parseFloat(document.getElementById('totalCobrar').textContent.replace('$',''));
