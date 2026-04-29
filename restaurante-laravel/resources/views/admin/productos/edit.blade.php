@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Editar Producto')
 
 @section('content')
@@ -67,7 +67,7 @@
                         <div class="col-md-4 mb-3">
                             <label for="precio" class="form-label">Precio de Venta *</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}</span>
                                 <input type="number" 
                                        class="form-control @error('precio') is-invalid @enderror" 
                                        id="precio" 
@@ -85,7 +85,7 @@
                         <div class="col-md-4 mb-3">
                             <label for="costo" class="form-label">Costo</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}</span>
                                 <input type="number" 
                                        class="form-control @error('costo') is-invalid @enderror" 
                                        id="costo" 

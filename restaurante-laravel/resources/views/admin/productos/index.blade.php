@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Productos')
 
 @section('content')
@@ -72,7 +72,7 @@
                                 {{ $producto->categoria->nombre }}
                             </span>
                         </td>
-                        <td>${{ number_format($producto->precio, 2) }}</td>
+                        <td>{{ $config->simbolo_moneda }}{{ number_format($producto->precio, 2) }}</td>
                         <td>
                             <span class="badge bg-{{ $producto->stock < 10 ? 'danger' : ($producto->stock < 20 ? 'warning' : 'success') }}">
                                 {{ $producto->stock }}

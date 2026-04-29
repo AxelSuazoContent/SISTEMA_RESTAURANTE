@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Punto de Venta')
 
 @section('styles')
@@ -213,7 +213,7 @@
                                 @endif
                                 <div class="card-body p-2 text-center">
                                     <h6 class="card-title mb-1" style="font-size:.85rem">{{ $prod->nombre }}</h6>
-                                    <p class="precio mb-0">${{ number_format($prod->precio,2) }}</p>
+                                    <p class="precio mb-0">{{ $config->simbolo_moneda }}{{ number_format($prod->precio,2) }}</p>
                                     @if($prod->stock <= 0)
                                         <small class="text-danger">Sin stock</small>
                                     @elseif($prod->stock < 10)
@@ -250,11 +250,11 @@
             <div class="card-footer">
                 <div class="d-flex justify-content-between mb-1">
                     <span class="text-muted">Subtotal:</span>
-                    <strong id="subtotal">$0.00</strong>
+                    <strong id="subtotal">{{ $config->simbolo_moneda }}0.00</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <span>Total:</span>
-                    <h4 class="mb-0 text-success" id="total">$0.00</h4>
+                    <h4 class="mb-0 text-success" id="total">{{ $config->simbolo_moneda }}0.00</h4>
                 </div>
                 <div class="d-grid gap-2">
                     <button class="btn btn-outline-danger" id="btnCancelar" onclick="cancelarTicket()" disabled>
@@ -291,7 +291,7 @@
                             </h6>
                             <small class="text-muted">{{ $pedido->tiempo_transcurrido }}</small>
                         </div>
-                        <p class="mb-1 fw-bold">${{ number_format($pedido->total,2) }}</p>
+                        <p class="mb-1 fw-bold">{{ $config->simbolo_moneda }}{{ number_format($pedido->total,2) }}</p>
                         <span class="badge-estado estado-{{ $pedido->estado }}">
                             {{ $pedido->estado_formateado }}
                         </span>
@@ -400,7 +400,7 @@
                 <div id="campoEfectivo">
                     <label class="form-label fw-semibold">Monto Recibido</label>
                     <div class="input-group mb-2">
-                        <span class="input-group-text">$</span>
+                        <span class="input-group-text">{{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}</span>
                         <input type="number" class="form-control form-control-lg" id="montoRecibido" step="0.01" min="0">
                     </div>
                     <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
@@ -454,6 +454,7 @@
 <script>
 const CAJA_CERRADA   = {{ $cierreCaja ? 'true' : 'false' }};
 const RESERVACIONES  = @json($reservaciones);
+const SIMBOLO_MONEDA = "{{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}";
 
 let ticket           = [];
 let mesaSeleccionada = null;
@@ -579,7 +580,7 @@ function actualizarTicket() {
                 <div class="d-flex justify-content-between align-items-start">
                     <div style="max-width:55%">
                         <strong>${item.nombre}</strong>
-                        <div class="text-muted small">$${item.precio.toFixed(2)} c/u</div>
+                        <div class="text-muted small">${SIMBOLO_MONEDA}${item.precio.toFixed(2)} c/u</div>
                     </div>
                     <div class="text-end">
                         <div class="cantidad-control justify-content-end">
@@ -587,7 +588,7 @@ function actualizarTicket() {
                             <span class="mx-1">${item.cantidad}</span>
                             <button class="btn btn-sm btn-outline-secondary" onclick="cambiarCantidad(${i},1)">+</button>
                         </div>
-                        <div class="mt-1 fw-bold">$${(item.precio * item.cantidad).toFixed(2)}</div>
+                        <div class="mt-1 fw-bold">${SIMBOLO_MONEDA}${(item.precio * item.cantidad).toFixed(2)}</div>
                     </div>
                 </div>
                 <input type="text" class="form-control form-control-sm mt-1"
@@ -608,8 +609,8 @@ function actualizarTicket() {
 
 function calcularTotales() {
     const sub = ticket.reduce((s, i) => s + i.precio * i.cantidad, 0);
-    document.getElementById('subtotal').textContent = '$' + sub.toFixed(2);
-    document.getElementById('total').textContent    = '$' + sub.toFixed(2);
+document.getElementById('subtotal').textContent = SIMBOLO_MONEDA + sub.toFixed(2);
+document.getElementById('total').textContent    = SIMBOLO_MONEDA + sub.toFixed(2);
 }
 
 function cancelarTicket() {
@@ -744,8 +745,9 @@ function renderDetallePedido(p) {
         <tr>
             <td>${d.producto.nombre}</td>
             <td class="text-center">${d.cantidad}</td>
-            <td class="text-end">$${parseFloat(d.precio_unitario).toFixed(2)}</td>
-            <td class="text-end fw-bold">$${(d.cantidad * d.precio_unitario).toFixed(2)}</td>
+<td class="text-end">${SIMBOLO_MONEDA}${parseFloat(d.precio_unitario).toFixed(2)}</td>
+<td class="text-end fw-bold">${SIMBOLO_MONEDA}${(d.cantidad * d.precio_unitario).toFixed(2)}</td>
+
         </tr>
         ${d.notas ? `<tr><td colspan="4"><small class="text-muted">📝 ${d.notas}</small></td></tr>` : ''}
     `).join('');
@@ -774,7 +776,7 @@ function renderDetallePedido(p) {
             <tfoot>
                 <tr class="fw-bold">
                     <td colspan="3" class="text-end">TOTAL</td>
-                    <td class="text-end text-success">$${parseFloat(p.total).toFixed(2)}</td>
+                    <td class="text-end text-success">${SIMBOLO_MONEDA}${parseFloat(p.total).toFixed(2)}</td>
                 </tr>
             </tfoot>
         </table>
@@ -799,9 +801,9 @@ function renderDetallePedido(p) {
 function abrirModalCobrar(pedidoId, total) {
     bootstrap.Modal.getInstance(document.getElementById('modalDetallePedido'))?.hide();
     pedidoActual = { id: pedidoId, total };
-    document.getElementById('totalCobrar').textContent = '$' + parseFloat(total).toFixed(2);
+    document.getElementById('totalCobrar').textContent = SIMBOLO_MONEDA + parseFloat(total).toFixed(2);
     document.getElementById('montoRecibido').value     = '';
-    document.getElementById('cambio').textContent      = '$0.00';
+    document.getElementById('cambio').textContent      = SIMBOLO_MONEDA + '0.00';
     document.getElementById('referenciaPago').value    = '';
     document.getElementById('clienteRTN').value        = '';
     document.getElementById('metodoPago').value        = 'efectivo';
@@ -831,7 +833,7 @@ document.getElementById('montoRecibido').addEventListener('input', function () {
     const total    = parseFloat(document.getElementById('totalCobrar').textContent.replace('$','')) || 0;
     const recibido = parseFloat(this.value) || 0;
     const cambio   = recibido - total;
-    document.getElementById('cambio').textContent = '$' + (cambio > 0 ? cambio.toFixed(2) : '0.00');
+    document.getElementById('cambio').textContent = SIMBOLO_MONEDA + (cambio > 0 ? cambio.toFixed(2) : '0.00');
 });
 
 function procesarPago() {

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Cierre de Caja')
 
 @section('styles')
@@ -44,7 +44,7 @@
                     </span>
                     <div>
                         <div style="font-size:13px;color:#6c757d">Abierta por {{ $apertura->usuario->nombre }} a las {{ $apertura->apertura_at->format('H:i') }}</div>
-                        <div style="font-size:15px;font-weight:600">Monto inicial: <span class="text-success">${{ number_format($apertura->monto_inicial, 2) }}</span></div>
+                        <div style="font-size:15px;font-weight:600">Monto inicial: <span class="text-success">{{ $config->simbolo_moneda }}{{ number_format($apertura->monto_inicial, 2) }}</span></div>
                         @if($totalEsperado !== null)
                             <div style="font-size:13px;color:#6c757d">
                                 En caja ahora debería haber: <strong class="text-dark">${{ number_format($totalEsperado, 2) }}</strong>
@@ -109,7 +109,7 @@
     <div class="col-6 col-md-3">
         <div class="stat-box bg-success text-white">
             <div style="font-size:12px;font-weight:600;opacity:.8">Efectivo</div>
-            <div style="font-size:26px;font-weight:700">${{ number_format($totalEfectivo, 2) }}</div>
+            <div style="font-size:26px;font-weight:700"> {{ $config->simbolo_moneda }}{{ number_format($totalEfectivo, 2) }}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
@@ -137,7 +137,7 @@
     <div class="card-body d-flex justify-content-between align-items-center">
         <div>
             <div class="text-muted" style="font-size:13px">Total del día — {{ $totalPedidos }} pedidos</div>
-            <div style="font-size:32px;font-weight:800;color:#198754">${{ number_format($totalDia, 2) }}</div>
+            <div style="font-size:32px;font-weight:800;color:#198754"> {{ $config->simbolo_moneda }}{{ number_format($totalDia, 2) }}</div>
         </div>
         <i class="bi bi-cash-coin" style="font-size:3rem;color:#198754;opacity:.3"></i>
     </div>
@@ -314,10 +314,10 @@ function confirmarCierre() {
         const monto = Math.abs(diferencia).toFixed(2);
 
         alert(`⚠️ No se puede cerrar la caja\n\n`
-            + `Esperado:  $${montoEsperado.toFixed(2)}\n`
+            + `Esperado:  {{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}${montoEsperado.toFixed(2)}\n`
             + `Contado:   $${montoFinal.toFixed(2)}\n`
             + `${tipo}:   $${monto}\n\n`
-            + `El monto contado debe ser exactamente $${montoEsperado.toFixed(2)}.`);
+            + `El monto contado debe ser exactamente {{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}${montoEsperado.toFixed(2)}.`);
         return; // ← bloquea el cierre
     }
 

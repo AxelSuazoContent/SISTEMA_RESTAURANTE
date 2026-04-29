@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Reporte de Ventas')
 
 @section('styles')
@@ -75,7 +75,7 @@
     <div class="col-6 col-md-3">
         <div class="stat-card bg-primary text-white">
             <div class="stat-label">Total Ventas</div>
-            <div class="stat-value">${{ number_format($totalVentas, 0) }}</div>
+            <div class="stat-value">{{ $config->simbolo_moneda }}{{ number_format($totalVentas, 0) }}</div>
             <div class="stat-sub">en el período</div>
         </div>
     </div>
@@ -89,7 +89,7 @@
     <div class="col-6 col-md-3">
         <div class="stat-card bg-warning text-dark">
             <div class="stat-label">Ticket Promedio</div>
-            <div class="stat-value">${{ number_format($ticketPromedio, 0) }}</div>
+            <div class="stat-value">{{ $config->simbolo_moneda }}{{ number_format($ticketPromedio, 0) }}</div>
             <div class="stat-sub">por pedido</div>
         </div>
     </div>
@@ -166,7 +166,7 @@
                         @endif
                     </td>
                     <td style="padding:10px 16px" class="text-end fw-semibold text-success">
-                        ${{ number_format($venta->total, 2) }}
+                        {{ $config->simbolo_moneda }}{{ number_format($venta->total, 2) }}
                     </td>
                 </tr>
                 @empty
@@ -182,7 +182,7 @@
                 <tr>
                     <td colspan="5" class="text-end fw-bold" style="padding:10px 16px">TOTAL</td>
                     <td class="text-end fw-bold text-primary" style="padding:10px 16px">
-                        ${{ number_format($totalVentas, 2) }}
+                        {{ $config->simbolo_moneda }}{{ number_format($totalVentas, 2) }}
                     </td>
                 </tr>
             </tfoot>
@@ -219,7 +219,7 @@ new Chart(document.getElementById('graficaDias'), {
             borderWidth: 2, borderRadius: 6 }]
     },
     options: { responsive: true, plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } } } }
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '{{ \App\Models\ConfigFactura::obtener()->simbolo_moneda }}' + v.toLocaleString() } } } }
 });
 
 new Chart(document.getElementById('graficaMetodos'), {

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@php $config = \App\Models\ConfigFactura::obtener(); @endphp
 @section('title', 'Dashboard')
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="stat-card bg-primary-soft">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="number">${{ number_format($ventasHoy, 2) }}</div>
+                    <div class="number">{{ $config->simbolo_moneda }}{{ number_format($ventasHoy, 2) }}</div>
                     <div class="label">Ventas Hoy</div>
                 </div>
                 <i class="bi bi-cash-stack"></i>
@@ -94,7 +94,7 @@
                                         {{ $pedido->cliente_nombre ?: 'Sin nombre' }}
                                     @endif
                                 </td>
-                                <td>${{ number_format($pedido->total, 2) }}</td>
+                                <td>{{ $config->simbolo_moneda }}{{ number_format($pedido->total, 2) }}</td>
                                 <td>
                                     <span class="badge-estado estado-{{ $pedido->estado }}">
                                         {{ $pedido->estado_formateado }}
