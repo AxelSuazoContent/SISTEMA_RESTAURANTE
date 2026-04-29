@@ -280,73 +280,76 @@ return view('pos.index', compact(
      * Procesar pago de un pedido
      */
     public function procesarPago(Request $request, Pedido $pedido)
-    {
-        if ($pedido->estado === 'pagado') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Este pedido ya ha sido pagado.',
-                
-            ], 422);
-        }
+{
+    if ($pedido->estado === 'pagado') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Este pedido ya ha sido pagado.',
+        ], 422);
+    }
 
-        $request->validate([
-            'metodo_pago' => 'required|in:efectivo,tarjeta,transferencia,otro',
-            'monto_recibido' => 'required|numeric|min:' . $pedido->total,
-            'referencia' => 'nullable|string|max:255',
-            'cliente_rtn' => 'nullable|string|digits:14',
-        ]);
+    $request->validate([
+        'metodo_pago'    => 'required|in:efectivo,tarjeta,transferencia,otro',
+        'monto_recibido' => 'required|numeric|min:0', // ← CAMBIADO: quitamos el min dinámico
+        'referencia'     => 'nullable|string|max:255',
+        'cliente_rtn'    => 'nullable|string|digits:14',
+    ]);
 
-        if ($request->metodo_pago === 'transferencia' && empty($request->referencia)) {
-    return response()->json([
-        'success' => false,
-        'message' => 'El código de transacción es obligatorio para transferencias.',
-    ], 422);
-}
+    if ($request->metodo_pago === 'transferencia' && empty($request->referencia)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'El código de transacción es obligatorio para transferencias.',
+        ], 422);
+    }
 
-        DB::beginTransaction();
+    // ← NUEVO: validar monto solo para efectivo
+    if ($request->metodo_pago === 'efectivo' && $request->monto_recibido < $pedido->total) {
+        return response()->json([
+            'success' => false,
+            'message' => 'El monto recibido es menor al total del pedido.',
+        ], 422);
+    }
 
-        try {
-            $cambio = $request->monto_recibido - $pedido->total;
+    DB::beginTransaction();
 
-            // Crear el pago
-            Pago::create([
+    try {
+        $cambio = max(0, $request->monto_recibido - $pedido->total);
+
+        Pago::create([
             'pedido_id'   => $pedido->id,
             'metodo_pago' => $request->metodo_pago,
             'monto'       => $pedido->total,
             'cambio'      => $cambio,
             'referencia'  => $request->referencia,
-            'notas'       => $request->notas,
+            'notas'       => $request->notas ?? null,
             'cliente_rtn' => $request->cliente_rtn,
         ]);
 
-            // Actualizar pedido
-            $pedido->estado = 'pagado';
-            $pedido->fecha_completado = now();
-            $pedido->save();
+        $pedido->estado = 'pagado';
+        $pedido->fecha_completado = now();
+        $pedido->save();
 
-            // Liberar mesa
-            if ($pedido->mesa) {
-                $pedido->mesa->estado = 'disponible';
-                $pedido->mesa->save();
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'cambio' => $cambio,
-                'message' => 'Pago procesado correctamente.',
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al procesar el pago: ' . $e->getMessage(),
-            ], 500);
+        if ($pedido->mesa) {
+            $pedido->mesa->estado = 'disponible';
+            $pedido->mesa->save();
         }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'cambio'  => $cambio,
+            'message' => 'Pago procesado correctamente.',
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al procesar el pago: ' . $e->getMessage(),
+        ], 500);
     }
+}
 
     /**
      * Cambiar estado de un pedido a entregado
@@ -424,12 +427,10 @@ public function mesasCambiarEstado(Request $request, Mesa $mesa)
 
 public function generarFactura(Request $request, Pedido $pedido)
 {
-    // Verificar que el pedido esté pagado
     if ($pedido->estado !== 'pagado') {
         return response()->json(['success' => false, 'message' => 'El pedido no está pagado.']);
     }
 
-    // Si ya tiene factura, retornarla
     $facturaExistente = Factura::where('pedido_id', $pedido->id)->first();
     if ($facturaExistente) {
         return response()->json([
@@ -440,7 +441,15 @@ public function generarFactura(Request $request, Pedido $pedido)
         ]);
     }
 
-    // ── NUEVO: Generar número SAR con validación ──────────────────────
+    // ← NUEVO: verificar que el pago existe
+    $pago = $pedido->pago;
+    if (!$pago) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontró el pago asociado al pedido.',
+        ]);
+    }
+
     try {
         $numeroData = Factura::generarNumero();
     } catch (\Exception $e) {
@@ -449,35 +458,39 @@ public function generarFactura(Request $request, Pedido $pedido)
             'message' => $e->getMessage(),
         ]);
     }
-    // ─────────────────────────────────────────────────────────────────
 
-    $pago = $pedido->pago;
-
-    // Calcular ISV 15% correctamente
     $subtotalSinIsv = round($pedido->total / 1.15, 2);
     $isv            = round($pedido->total - $subtotalSinIsv, 2);
 
-    $factura = Factura::create([
-        'numero_factura' => $numeroData['numero_factura'],  // ← CAMBIADO
-        'correlativo'    => $numeroData['correlativo'],     // ← NUEVO
-        'pedido_id'      => $pedido->id,
-        'pago_id'        => $pago->id,
-        'usuario_id'     => auth()->id(),
-        'subtotal'       => $subtotalSinIsv,                // ← CORREGIDO (antes era total)
-        'impuesto'       => $isv,                           // ← CORREGIDO (antes era 0)
-        'total'          => $pedido->total,
-        'metodo_pago'    => $pago->metodo_pago,
-        'cliente_nombre' => $pedido->mesa
-                                ? 'Mesa ' . $pedido->mesa->numero
-                                : $pedido->cliente_nombre,
-    ]);
+    try {
+        $factura = Factura::create([
+            'numero_factura' => $numeroData['numero_factura'],
+            'correlativo'    => $numeroData['correlativo'],
+            'pedido_id'      => $pedido->id,
+            'pago_id'        => $pago->id,
+            'usuario_id'     => auth()->id(),
+            'subtotal'       => $subtotalSinIsv,
+            'impuesto'       => $isv,
+            'total'          => $pedido->total,
+            'metodo_pago'    => $pago->metodo_pago,
+            'cliente_nombre' => $pedido->mesa
+                                    ? 'Mesa ' . $pedido->mesa->numero
+                                    : $pedido->cliente_nombre,
+        ]);
 
-    return response()->json([
-        'success'      => true,
-        'factura_id'   => $factura->id,
-        'numero'       => $factura->numero_factura,
-        'imprimir_url' => route('admin.facturas.imprimir', $factura),
-    ]);
+        return response()->json([
+            'success'      => true,
+            'factura_id'   => $factura->id,
+            'numero'       => $factura->numero_factura,
+            'imprimir_url' => route('admin.facturas.imprimir', $factura),
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al generar la factura: ' . $e->getMessage(),
+        ]);
+    }
 }
 
 public function pedidoActivoPorMesa(Mesa $mesa)

@@ -830,7 +830,7 @@ document.getElementById('metodoPago').addEventListener('change', function () {
 });
 
 document.getElementById('montoRecibido').addEventListener('input', function () {
-    const total    = parseFloat(document.getElementById('totalCobrar').textContent.replace('$','')) || 0;
+    const total = parseFloat(document.getElementById('totalCobrar').textContent.replace(/[^0-9.]/g, ''));
     const recibido = parseFloat(this.value) || 0;
     const cambio   = recibido - total;
     document.getElementById('cambio').textContent = SIMBOLO_MONEDA + (cambio > 0 ? cambio.toFixed(2) : '0.00');

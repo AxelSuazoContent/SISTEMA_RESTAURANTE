@@ -79,22 +79,34 @@
                                    placeholder="A1B2C3-D4E5F6-G7H8I9-J0K1L2-M3N4O5-P6">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Rango Desde *</label>
-                            <input type="text" class="form-control font-monospace" name="rango_desde"
-                                   value="{{ old('rango_desde', $config->rango_desde) }}" required
-                                   placeholder="001-001-01-00000001">
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Rango Hasta *</label>
-                            <input type="text" class="form-control font-monospace" name="rango_hasta"
-                                   value="{{ old('rango_hasta', $config->rango_hasta) }}" required
-                                   placeholder="001-001-01-00099999">
-                        </div>
+    <label class="form-label">Rango Desde *</label>
+    <input type="text" class="form-control font-monospace" name="rango_desde"
+           id="rango_desde"
+           value="{{ old('rango_desde', $config->rango_desde) }}" required
+           placeholder="001-001-01-00000001"
+           maxlength="19"
+           oninput="formatearRango(this)"
+           onblur="validarRango(this)">
+    <div class="invalid-feedback">Formato inválido. Debe ser: 001-001-01-00000001</div>
+    <small class="text-muted">Formato: NNN-NNN-NN-NNNNNNNN (19 caracteres)</small>
+</div>
+<div class="col-md-5">
+    <label class="form-label">Rango Hasta *</label>
+    <input type="text" class="form-control font-monospace" name="rango_hasta"
+           id="rango_hasta"
+           value="{{ old('rango_hasta', $config->rango_hasta) }}" required
+           placeholder="001-001-01-00099999"
+           maxlength="19"
+           oninput="formatearRango(this)"
+           onblur="validarRango(this)">
+    <div class="invalid-feedback">Formato inválido. Debe ser: 001-001-01-00099999</div>
+    <small class="text-muted">Formato: NNN-NNN-NN-NNNNNNNN (19 caracteres)</small>
+</div>
                         <div class="col-md-2">
                             <label class="form-label">Fecha Límite *</label>
                             <input type="date" class="form-control" name="fecha_limite_emision"
-                                   {{-- ✅ Funciona siempre --}}
-value="{{ old('fecha_limite_emision', \Carbon\Carbon::parse($config->fecha_limite_emision)->format('Y-m-d')) }}">
+                                   
+                            value="{{ old('fecha_limite_emision', \Carbon\Carbon::parse($config->fecha_limite_emision)->format('Y-m-d')) }}">
                         </div>
                     </div>
 
@@ -182,5 +194,55 @@ value="{{ old('fecha_limite_emision', \Carbon\Carbon::parse($config->fecha_limit
 <script>
 const HORARIO_APERTURA = '{{ \App\Models\Configuracion::get('HORARIO_APERTURA', '11:00') }}';
 const HORARIO_CIERRE   = '{{ \App\Models\Configuracion::get('HORARIO_CIERRE', '22:00') }}';
+
+// Formatea automáticamente mientras escribe: 001001010000001 → 001-001-01-00000001
+function formatearRango(input) {
+    // Solo números
+    let val = input.value.replace(/[^0-9]/g, '');
+
+    // Aplicar guiones automáticamente
+    let resultado = '';
+    if (val.length > 0)  resultado += val.substring(0, 3);
+    if (val.length > 3)  resultado += '-' + val.substring(3, 6);
+    if (val.length > 6)  resultado += '-' + val.substring(6, 8);
+    if (val.length > 8)  resultado += '-' + val.substring(8, 16);
+
+    input.value = resultado;
+    validarRango(input);
+}
+
+// Valida que tenga exactamente el formato 000-000-00-00000000
+function validarRango(input) {
+    const regex = /^\d{3}-\d{3}-\d{2}-\d{8}$/;
+    const valido = regex.test(input.value);
+    input.classList.toggle('is-invalid', !valido && input.value.length > 0);
+    input.classList.toggle('is-valid',   valido);
+    return valido;
+}
+
+// Validar antes de enviar el formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const desde = document.getElementById('rango_desde');
+    const hasta = document.getElementById('rango_hasta');
+    const desdeValido = validarRango(desde);
+    const hastaValido = validarRango(hasta);
+
+    if (!desdeValido || !hastaValido) {
+        e.preventDefault();
+        alert('Los rangos deben tener el formato correcto: 001-001-01-00000001');
+        return;
+    }
+
+    // Verificar que rango_desde sea menor que rango_hasta
+    const desdeNum = parseInt(desde.value.replace(/-/g, ''));
+    const hastaNum = parseInt(hasta.value.replace(/-/g, ''));
+
+    if (desdeNum >= hastaNum) {
+        e.preventDefault();
+        alert('El Rango Desde debe ser menor que el Rango Hasta.');
+        desde.classList.add('is-invalid');
+        return;
+    }
+});
 </script>
 @endsection
