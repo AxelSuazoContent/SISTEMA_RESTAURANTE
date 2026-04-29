@@ -93,7 +93,8 @@
                         <div class="col-md-2">
                             <label class="form-label">Fecha Límite *</label>
                             <input type="date" class="form-control" name="fecha_limite_emision"
-                                   value="{{ old('fecha_limite_emision', $config->fecha_limite_emision->format('Y-m-d')) }}" required>
+                                   {{-- ✅ Funciona siempre --}}
+value="{{ old('fecha_limite_emision', \Carbon\Carbon::parse($config->fecha_limite_emision)->format('Y-m-d')) }}">
                         </div>
                     </div>
 

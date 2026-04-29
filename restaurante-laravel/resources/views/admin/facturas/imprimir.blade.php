@@ -152,7 +152,7 @@
         <p><strong>Rango autorizado:</strong></p>
         <p>Del {{ $config->rango_desde }}</p>
         <p>Al &nbsp; {{ $config->rango_hasta }}</p>
-        <p><strong>Fecha límite de emisión:</strong> {{ $config->fecha_limite_emision->format('d/m/Y') }}</p>
+        <p><strong>Fecha límite de emisión:</strong> {{ \Carbon\Carbon::parse($config->fecha_limite_emision)->format('d/m/Y') }}</p>
         <p style="margin-top:4px">* Original: Cliente &nbsp;|&nbsp; Copia: Establecimiento</p>
     </div>
 
