@@ -834,49 +834,41 @@ function procesarPago() {
     }
     document.getElementById('rtnError').classList.add('d-none');
 
-    fetch(`/pos/pedido/${pedidoActual.id}/pagar`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-            metodo_pago:    metodo,
-            monto_recibido: metodo === 'efectivo' ? recibido : total,
-            referencia:     referencia,
-            cliente_rtn:    clienteRTN
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modalCobrar'))?.hide();
-            mostrarToast('¡Pago procesado correctamente!', 'success');
+    // En procesarPago(), reemplaza el bloque del fetch de factura:
 
-            fetch(`/pos/pedido/${pedidoActual.id}/factura`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(r => r.json())
-            .then(f => {
-                if (f.success) {
-                    mostrarToast(`Factura ${f.numero} generada`, 'success');
-                    setTimeout(() => window.open(f.imprimir_url, '_blank'), 800);
-                } else {
-                    mostrarToast('Pago ok pero error en factura: ' + f.message, 'warning');
-                }
-            });
-
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            mostrarToast(data.message || 'Error al procesar el pago', 'danger');
+fetch(`/pos/pedido/${pedidoActual.id}/factura`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    }
+})
+.then(r => r.json())
+.then(f => {
+    if (f.success) {
+        // ← NUEVO: mostrar botón en lugar de abrir automáticamente
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px';
+            document.body.appendChild(container);
         }
-    })
-    .catch(() => mostrarToast('Error de conexión', 'danger'));
-}
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success shadow mb-0 py-2 px-3';
+        toast.style.cssText = 'min-width:280px;animation:fadeIn .2s ease';
+        toast.innerHTML = `
+            <div><i class="bi bi-check-circle"></i> Factura <strong>${f.numero}</strong> generada</div>
+            <a href="${f.imprimir_url}" target="_blank" class="btn btn-sm btn-light mt-2 w-100">
+                <i class="bi bi-printer"></i> Abrir e Imprimir Factura
+            </a>
+        `;
+        container.appendChild(toast);
+        // Este toast no se cierra solo — el usuario lo cierra al hacer click
+    } else {
+        mostrarToast('Pago ok pero error en factura: ' + f.message, 'warning');
+    }
+});
 
 // ── Cancelar pedido ──────────────────────────────────────────────────────────
 function cancelarPedido(id) {
