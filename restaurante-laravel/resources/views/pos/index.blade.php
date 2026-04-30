@@ -849,33 +849,40 @@ function procesarPago() {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modalCobrar'))?.hide();
-            mostrarToast('¡Pago procesado correctamente!', 'success');
+    if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('modalCobrar'))?.hide();
+        mostrarToast('¡Pago procesado correctamente!', 'success');
 
-            fetch(`/pos/pedido/${pedidoActual.id}/factura`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(r => r.json())
-            .then(f => {
-                if (f.success) {
-                    mostrarToast(`Factura ${f.numero} generada`, 'success');
-                    setTimeout(() => window.open(f.imprimir_url, '_blank'), 800);
-                } else {
-                    mostrarToast('Pago ok pero error en factura: ' + f.message, 'warning');
-                }
-            });
-
+        fetch(`/pos/pedido/${pedidoActual.id}/factura`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(r => r.json())
+        .then(f => {
+            if (f.success) {
+                mostrarToast(`Factura ${f.numero} generada`, 'success');
+                // ← Abrir factura PRIMERO, luego recargar
+                window.open(f.imprimir_url, '_blank');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                mostrarToast('Pago ok pero error en factura: ' + f.message, 'warning');
+                setTimeout(() => location.reload(), 2000);
+            }
+        })
+        .catch(() => {
+            mostrarToast('Pago ok pero error al generar factura', 'warning');
             setTimeout(() => location.reload(), 2000);
-        } else {
-            mostrarToast(data.message || 'Error al procesar el pago', 'danger');
-        }
-    })
-    .catch(() => mostrarToast('Error de conexión', 'danger'));
+        });
+
+        // ← QUITAR el setTimeout de reload que estaba aquí antes
+    } else {
+        mostrarToast(data.message || 'Error al procesar el pago', 'danger');
+    }
+})
+.catch(() => mostrarToast('Error de conexión al procesar el pago', 'danger'));
 }
 
 // ── Cancelar pedido ──────────────────────────────────────────────────────────
